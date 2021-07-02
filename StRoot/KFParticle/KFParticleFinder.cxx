@@ -222,6 +222,11 @@ void KFParticleFinder::FindParticles(KFPTrackVector* vRTracks, kfvector_float* C
     FindTrackV0Decay(fSecCandidates[2], -3122, vRTracks[0], 1, vRTracks[0].FirstPion(), vRTracks[0].LastKaon(),
                     Particles, PrimVtx, -1, &(ChiToPrimVtx[0]), &fPrimCandidates[6]);
 
+
+
+    FindTrackV0Decay(fSecCandidates[1], 3122, vRTracks[0], 1, vRTracks[0].FirstDeuteron(), vRTracks[0].LastDeuteron(),
+                    Particles, PrimVtx, -1, &(ChiToPrimVtx[1]), &fPrimCandidates[11]);
+
     //FindTrackV0Decay(fPPi ,3012, vRTracks[0], 1, vRTracks[0].FirstDeuteron(), vRTracks[0].LastDeuteron(), Particles, PrimVtx, -1, &(ChiToPrimVtx[0]), &fPrimCandidates[11]);
     FindTrackV0Decay(fPPi ,3012, vRTracks[0], 1, vRTracks[0].FirstDeuteron(), vRTracks[0].LastDeuteron(), Particles, PrimVtx, -1, 0);
 
@@ -2082,6 +2087,9 @@ void KFParticleFinder::FindTrackV0Decay(vector<KFParticle>& vV0,
           motherPDG( isSecondary && int_m(trackPdgPos[iPDGPos] == -211) ) =  3312;
           motherPDG( isSecondary && int_m(trackPdgPos[iPDGPos] ==  211) ) =  304122;
           motherPDG( isSecondary && int_m(abs(trackPdgPos[iPDGPos]) ==  321) ) =  3334;
+
+	  motherPDG( isSecondary && int_m(trackPdgPos[iPDGPos] == 1000010020) ) = 103005;
+
           motherPDG( isPrimary   && int_m(trackPdgPos[iPDGPos] ==  211) ) =  3224; 
           motherPDG( isPrimary   && int_m(trackPdgPos[iPDGPos] ==  -211) ) =  3114;
           motherPDG( isPrimary   && int_m(trackPdgPos[iPDGPos] == -321) ) =   1003314; 
@@ -2360,6 +2368,7 @@ void KFParticleFinder::FindTrackV0Decay(vector<KFParticle>& vV0,
             case   3009: motherType = 1; break; //H4LL
             case   3011: motherType = 1; break; //He6LL
             case   103004: motherType = 1; break; //H3L3body
+            case   103005: motherType = 0; break; //H3L3body
             default:   motherType = 2; break; //resonances
           }
           for(int iCut=0; iCut<3; iCut++)
