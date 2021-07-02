@@ -264,6 +264,7 @@ class KFParticleBase :public TObject {
 
   //* Rotates the KFParticle object around OZ axis, OZ axis is set by the vertex position
   void RotateXY(float angle, float Vtx[3]);
+  void Rotate(float angle, const KFParticleBase& axis);
 
   int Id() const { return fId; };
   int NDaughters() const { return fDaughtersIds.size(); };
