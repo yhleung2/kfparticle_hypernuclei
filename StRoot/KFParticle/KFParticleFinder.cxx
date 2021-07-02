@@ -1,4 +1,3 @@
-//TFG18n
 //----------------------------------------------------------------------------
 // Implementation of the KFParticle class
 // .
@@ -878,10 +877,10 @@ inline void KFParticleFinder::SaveV0PrimSecCand(KFParticleSIMD& mother,
     motherTopo.SetProductionVertex(PrimVtx[iP]);
     
     const float_v& motherTopoChi2Ndf = motherTopo.GetChi2()/float_v(motherTopo.GetNDF());
-    std::cout<<"motherTopoChi2Ndf:"<<motherTopoChi2Ndf<<std::endl;
+    //std::cout<<"motherTopoChi2Ndf:"<<motherTopoChi2Ndf<<std::endl;
     chi2TopoMin(motherTopoChi2Ndf < chi2TopoMin) = motherTopoChi2Ndf;
-    std::cout<<"chi2TopoMin:"<<chi2TopoMin<<std::endl;
-    std::cout<<"secCuts[1]:"<<secCuts[1]<<std::endl;
+    //std::cout<<"chi2TopoMin:"<<chi2TopoMin<<std::endl;
+    //std::cout<<"secCuts[1]:"<<secCuts[1]<<std::endl;
     
     const float_m isPrimaryPartLocal = ( motherTopoChi2Ndf < secCuts[1] );
 
