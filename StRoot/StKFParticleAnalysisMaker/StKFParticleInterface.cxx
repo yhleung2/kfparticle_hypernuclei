@@ -284,8 +284,7 @@ bool StKFParticleInterface::IsGoodPV(const KFVertex& pv)
 //		  (sqrt(pv.X()*pv.X() + pv.Y()*pv.Y()) < 2);                 
   bool isGoodPV;
 
-  //isGoodPV = (pv.Z() > 198) && (pv.Z() < 202) && (sqrt(pv.X()*pv.X() + (pv.Y()+2)*(pv.Y()+2)) < 2);
-  isGoodPV = (pv.Z() > 198) && (pv.Z() < 202) && (sqrt(pv.X()*pv.X() + (pv.Y()+2)*(pv.Y()+2)) < 1.5);//20201120 dan cebra
+  isGoodPV = (pv.Z() > 198) && (pv.Z() < 202) && (sqrt(pv.X()*pv.X() + (pv.Y()+2)*(pv.Y()+2)) < 2);
 
   return isGoodPV;
 }
@@ -440,7 +439,8 @@ vector<int> ToFPDG;
     fTrackPidTpc[iPdg][trackId] = dEdXPull[iPdg];
 
   vector<int> dEdXPDG;
-  float nSigmaCut = 3.f; //TODO
+  //float nSigmaCut = 3.f; //TODO
+  float nSigmaCut = 10.f; //TODO
 
   //bool checkKTof = false;
   //if(fCleanKaonsWitTof)
@@ -451,8 +451,6 @@ vector<int> ToFPDG;
   //    checkKHasTof = 1;
 
   if(dEdXPull[0] < nSigmaCut)                                           dEdXPDG.push_back(211*q);
-  //if(dEdXPull[1] < 2.f && ((checkKTof && checkKHasTof) || !checkKTof) ) dEdXPDG.push_back(321*q);
-  //if(dEdXPull[1] < 2.f)							dEdXPDG.push_back(321*q);
   if(dEdXPull[1] < nSigmaCut)							dEdXPDG.push_back(321*q);
   if(dEdXPull[2] < nSigmaCut)                                           dEdXPDG.push_back(2212*q);
 
@@ -469,27 +467,16 @@ vector<int> ToFPDG;
 //end removing tof   
 
   {
-//    if(dEdXPull[5] < nSigmaCut) totalPDG.push_back(1000020030*q);
-//    if(dEdXPull[6] < nSigmaCut) { totalPDG.push_back(1000020040*q); }
 
-//
-// default KFparicle deuteron pid    
-//    if(dEdXPull[3] < nSigmaCut && dEdXPull[2] > nSigmaCut) 
-//      if( isTofm2 && (m2 > 2 && m2<6) ) //if( !isTofm2 || (isTofm2 && (m2 > 2 && m2<6)) )
-//         totalPDG.push_back(1000010020*q); 
-
-    //if(dEdXPull[3] < nSigmaCut && dEdXPull[2] > nSigmaCut){
     if(dEdXPull[3] < nSigmaCut ){
 	        totalPDG.push_back(1000010020*q);
     }
 
 
     if(dEdXPull[4] < nSigmaCut && dEdXPull[3] > nSigmaCut) 
+      if( isTofm2 && (m2 > 5) ) //if( !isTofm2 || (isTofm2 && (m2 > 5)) )
         totalPDG.push_back(1000010030*q);
-//      if( isTofm2 && (m2 > 5) ) //if( !isTofm2 || (isTofm2 && (m2 > 5)) )
-//        totalPDG.push_back(1000010030*q);
-   
-//    if(p>0.6 && p<1.8)
+  /* 
     if(p>0.4&& p<6.0)    
     {
       double lowerParameters2[4]={24.7439,-1.09225,0.391905,-0.00815047};      //lower 1.5 sigma band
@@ -497,16 +484,11 @@ vector<int> ToFPDG;
       double lowerHe3Bound2 = lowerParameters2[0]*TMath::Power(p, lowerParameters2[1] + lowerParameters2[2]*log(p) + lowerParameters2[3]*log(p)*log(p));
       double lowerHe3Bound = lowerParameters[0]*TMath::Power(p, lowerParameters[1] + lowerParameters[2]*log(p) + lowerParameters[3]*log(p)*log(p));
 
-//      double upperParameters[4] = {3.36169e+01,-1.33686e+00, 2.82856e-01, 1.91841e-01};
       double upperParameters[4] = {32.0856,-1.22651,0.404085,0.0304582}; //upper 2.5 sigma      
       double upperHe3Bound = upperParameters[0]*TMath::Power(p, upperParameters[1] + upperParameters[2]*log(p) + upperParameters[3]*log(p)*log(p));
 
       double upperHe4Parameters[4] = {52.3905,-1.42659,0.210966,0.121851}; //upper he4 4sigma;
       double upperHe4Bound = upperHe4Parameters[0]*TMath::Power(p, upperHe4Parameters[1] + upperHe4Parameters[2]*log(p) + upperHe4Parameters[3]*log(p)*log(p));
-
-    double lowerHe4Parameters[4] = {30.2657,-1.21224,0.496028,-0.150661}; // He4 lower 3.0 sigma
-    double lowerHe4Bound = lowerHe4Parameters[0]*TMath::Power(p, lowerHe4Parameters[1] + lowerHe4Parameters[2]*log(p) + lowerHe4Parameters[3]*log(p)*log(p));
-
 
       if(p>=0.85){
       if( dEdX > lowerHe3Bound && dEdX < upperHe3Bound ) 
@@ -520,23 +502,19 @@ vector<int> ToFPDG;
 
 
 
-      if(dEdX > lowerHe4Bound  && dEdX < upperHe4Bound)               
+      if(dEdX > upperHe3Bound && dEdX < upperHe4Bound)               
         if( !isTofm2 || (isTofm2 && (m2>2.5) && (m2<6.) ) )
           totalPDG.push_back(1000020040*q);
 
 
-    }
-/*
-    else if(p>=6. && dEdX > 9.)
-    {
-      if(dEdXPull[5] < nSigmaCut && dEdXPull[4] > nSigmaCut) 
-        if( !isTofm2 || (isTofm2 && (m2>1.) && (m2<5.) ) )
-          totalPDG.push_back(1000020030*q);
-      if(dEdXPull[6] < nSigmaCut && dEdXPull[5] > nSigmaCut) 
-        if( !isTofm2 || (isTofm2 && (m2>2.5) && (m2<6.) ) )
-          totalPDG.push_back(1000020040*q);
     }
 */
+    if(p>0.4 && dEdX > 8.)
+    //if(p>0.4)
+    {
+          totalPDG.push_back(1000020030*q);
+          totalPDG.push_back(1000020040*q);
+    }
   }
     
   if(totalPDG.size() == 0)
@@ -702,13 +680,12 @@ void StKFParticleInterface::AddTrackToParticleList(const KFPTrack& track, int nH
     }
     
     nHftHits[nPartSaved] = nHftHitsInTrack;
-  
- 
+   
 
     KFParticle particle(trackPDG, pdg);
     float chiPrim = particle.GetDeviationFromVertex(pv);
 
-    //if( abs(pdg) == 211 && chiPrim < 3.) continue;//b, hardcoding! remove all secondary pions
+//    if( abs(pdg) == 211 && chiPrim < 3.) continue;//b, hardcoding! remove all secondary pions
 
     if(chiPrim < fChiPrimaryCut)
     {
@@ -957,7 +934,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
    
 	//b
         fNHits[index] = gTrack->nHitsFit();
-        fNHitsdedx[index] = gTrack->nHitsDedx();
+	fNHitsdedx[index] = gTrack->nHitsDedx();
         fTrackzdeuteron[index] = gTrack->dEdxPull(1.876124, fdEdXMode, 1)*gTrack->dEdxError();
 
 	if(isTofm2)   fTrackm2[index] = m2tof;
@@ -1367,7 +1344,7 @@ dz = 0;
 
         //b
         fNHits[index] = gTrack->nHitsFit();
-        fNHitsdedx[index] = gTrack->nHitsDedx();
+	fNHitsdedx[index] = gTrack->nHitsDedx();
         fTrackzdeuteron[index] = gTrack->dEdxPull(1.876124, fdEdXMode, 1)*gTrack->probPidTraits().dEdxErrorFit();
         //endb
         
@@ -1385,6 +1362,20 @@ dz = 0;
 
   const Double_t field = muDst->event()->magneticField();
   SetField(field);
+
+//b
+  float vtxb[3];
+  vtxb[0] = bVtx->position().x();
+  vtxb[1] = bVtx->position().y();
+  vtxb[2] = bVtx->position().z();
+  if(fRotation){
+  for(int iTr=0; iTr<nPartSaved; iTr++){
+  if(fParticlesPdg[iTr]==fRotationPID){
+  fParticles[iTr].RotateXY(fRotationAngle,vtxb);
+  		}
+  	}
+  }
+  //endb	
 
   CleanPV();
   InitParticles();
