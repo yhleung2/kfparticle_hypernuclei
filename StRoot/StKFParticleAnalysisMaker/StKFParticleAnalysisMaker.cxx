@@ -705,6 +705,8 @@ Int_t StKFParticleAnalysisMaker::Init()
    htriton_tree->Branch("pz_he",&pz_he,"pz_he/F");
 
    htriton_tree->Branch("bismc",&bismc,"bismc/I");
+   htriton_tree->Branch("bismc_0",&bismc_0,"bismc_0/I");
+   htriton_tree->Branch("bismc_1",&bismc_1,"bismc_1/I");
    htriton_tree->Branch("bmcpx",&bmcpx,"bmcpx/F");
    htriton_tree->Branch("bmcpy",&bmcpy,"bmcpy/F");
    htriton_tree->Branch("bmcpz",&bmcpz,"bmcpz/F");
@@ -788,6 +790,7 @@ Int_t StKFParticleAnalysisMaker::Init()
    htriton3_tree->Branch("ht_bdfvtx",&ht_bdfvtx,"ht_bdfvtx/F");
    htriton3_tree->Branch("ht_bdfvtx2",&ht_bdfvtx2,"ht_bdfvtx2/F");
 
+	htriton3_tree->Branch("kstar",&kstar,"kstar/F");
 
         htriton3_tree->Branch("bpionm2",&bpionm2,"bpionm2/F");
 	htriton3_tree->Branch("bprotonm2",&bprotonm2,"bprotonm2/F");
@@ -2286,8 +2289,19 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
       	int order[4] = {0, 1, 2, 3};
   	const int daughterParticleIndex = particle.DaughterIds()[order[iDaughter]];
   	KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
+
+	KFParticle daughter_temp;
+//	bool isdaughterMCParticle = fStKFParticlePerformanceInterface->GetParticle(daughter_0, daughterParticleIndex);
+//	if(isdaughterMCParticle) cout<<"is MC!"<<endl;
+//	else cout<<"not MC!"<<endl;
+
+
             if(iDaughter==0)
 		{
+			bool isdaughterMCParticle = fStKFParticlePerformanceInterface->GetParticle(daughter_temp, daughterParticleIndex);
+			if(isdaughterMCParticle) bismc_0 = 1;
+			else bismc_0 = 0;
+
 			chi2primary_pi = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
                         nhits_pi = fStKFParticleInterface->GetNHits(daughter.DaughterIds()[0]);
                         nhitsdedx_pi = fStKFParticleInterface->GetNHitsdedx(daughter.DaughterIds()[0]);
@@ -2299,6 +2313,10 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 		}
             if(iDaughter==1)
 		{
+			bool isdaughterMCParticle = fStKFParticlePerformanceInterface->GetParticle(daughter_temp, daughterParticleIndex);
+                        if(isdaughterMCParticle) bismc_1 = 1;
+                        else bismc_1 = 0;
+
 //			cout<<"daughter:"<<sqrt(daughter.GetPx()*daughter.GetPx()+daughter.GetPy()*daughter.GetPy())<<endl;
 			chi2primary_he = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
                         nhits_he = fStKFParticleInterface->GetNHits(daughter.DaughterIds()[0]);
@@ -2318,6 +2336,9 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 
                           
                           if(isMCParticle){
+
+    			 	  cout<<"bismc_0_1:"<<bismc_0<< " "<<bismc_1<<endl;
+
                                   int iMCPart = fStKFParticlePerformanceInterface->GetParticleMCId(iParticle);
                                   StMuMcTrack *mcTrack = fMuDst->MCtrack(iMCPart);
                                   bmcpx = mcTrack->Pxyz().x();
@@ -2453,6 +2474,18 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 			v_12_chi2primary = v_12.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
                         v_12_pvdca = v_12.GetDistanceFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
 
+
+			TLorentzVector b_ld;
+			TLorentzVector b_d;
+			b_ld.SetPxPyPzE(v_01.GetPx(), v_01.GetPy(), v_01.GetPz(), v_01.GetE());
+			b_d.SetPxPyPzE(bach.GetPx(), bach.GetPy(), bach.GetPz(), bach.GetE());
+			TLorentzVector H = b_d + b_ld;
+			TLorentzVector Qvect = b_ld - b_d;
+			double Pinv = H.Mag();
+			double Q1 = (1.87562481767*1.87562481767-1.115683*1.115683)/Pinv;
+   		        kstar=sqrt(Q1*Q1-Qvect.Mag2())/2.0;
+//			cout<<"kstar:"<<kstar<<endl;
+
 //			float v_01_dca;
 //			float v_02_dca;
 //                        float v_12_dca;
@@ -2512,7 +2545,6 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 			                        b2mcpy = dmcTrack->Pxyz().y();
                         			b2mcpz = dmcTrack->Pxyz().z();
                         	        }
-/*
 					//default 3-body setup
 			                if(dmcTrack->GePid()==9){
 		                	        b0mcpx = dmcTrack->Pxyz().x();
@@ -2524,9 +2556,9 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 		                       		b1mcpy = dmcTrack->Pxyz().y();
         			                b1mcpz = dmcTrack->Pxyz().z();
                         		}
-*/					
+					
 //modified phase psace
-
+/*
 						for (Int_t k = 0; k < fMuDst->numberOfMcTracks(); k++) {
         	                                StMuMcTrack *ddmcTrack = fMuDst->MCtrack(k);	
 					
@@ -2545,7 +2577,7 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 							}
 
 						}
-
+*/
 					}
 				}
 
