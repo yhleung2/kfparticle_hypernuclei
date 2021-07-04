@@ -1,4 +1,3 @@
-//TFG18n
 //----------------------------------------------------------------------------
 // Implementation of the KFParticle class
 // .
@@ -187,10 +186,14 @@ void KFTopoPerformance::GetMCParticles()
   newMotherPDG[ 4] = 9000321; newNeutralPDG[ 4] = 9000111;
   newMotherPDG[ 5] = 8003334; newNeutralPDG[ 5] = 8003122;
   newMotherPDG[ 6] = 8003222; newNeutralPDG[ 6] = 8000111;
-    
+
   //add neutrinos, if they are not saved
   for(int iMC=0; iMC<nMCParticles; iMC++)
   {
+//    if( abs(vMCParticles[iMC].GetPDG()) == 3312){
+//cout<<"0iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
+//    }
+
     if( abs(vMCParticles[iMC].GetPDG()) == 211 || abs(vMCParticles[iMC].GetPDG()) == 321 )
     {
       int muonIndex = -1;
@@ -259,6 +262,8 @@ void KFTopoPerformance::GetMCParticles()
         vMCParticles[muonIndex].SetAsReconstructable(4);
       }
     }
+
+    //cout<<"1iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
     // add sigmas, omegas, xis ...
     if( vMCParticles[iMC].NDaughters() >= 2 && 
         (abs(vMCParticles[iMC].GetPDG()) == 3112 || 
@@ -340,7 +345,6 @@ void KFTopoPerformance::GetMCParticles()
           }
         }
       }
-
       if(newPDG != 0)
       {
         KFMCParticle motherPart = vMCParticles[iMC];
@@ -386,7 +390,7 @@ void KFTopoPerformance::GetMCParticles()
   for(unsigned int iMC=0; iMC < vMCParticles.size(); iMC++)
   {
     KFMCParticle &part = vMCParticles[iMC];
-
+//cout<<"1iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<" "<< part.GetDaughterIds().size()<<endl;
 //     if(abs(part.GetPDG()) == 4122)
     {
       //add daughters into one pool
@@ -414,16 +418,109 @@ void KFTopoPerformance::GetMCParticles()
         else
 //         if(d.GetDaughterIds().size() == 0 || abs(d.GetPDG())==310 || abs(d.GetPDG())==3122)
           newDaughters.push_back(part.GetDaughterIds()[iD]);
+
+
       }
       part.CleanDaughters();
       for(unsigned int iDaughter=0; iDaughter<newDaughters.size(); iDaughter++)
         part.AddDaughter(newDaughters[iDaughter]);
-      
+
+
+   
+
+ 
+//DEBUG
+//if(  vMCParticles[iMC].GetMotherId()==-1 ){
+//cout<<"iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<" "<< vMCParticles[iMC].GetMotherId()<<" "<<part.GetDaughterIds().size()<<endl;
+//cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<< " "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<< vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<" "<<vMCParticles[part.GetDaughterIds()[2]].GetPDG()<<  endl;
+//}
+//
+//cout<<"part.GetPDG():"<<part.GetPDG()<<" "<<vMCParticles[iMC].GetMotherId()<<" "<<part.GetDaughterIds().size()<<endl;
+//vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<<vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<endl;
+
+//HARDCODING, TO BE FIXED
+//OMEGA EMBEDDING
+//	if(part.GetPDG()==-211 && part.GetDaughterIds().size()==2){
+//	  if((vMCParticles[part.GetDaughterIds()[0]].GetPDG()==-321 && vMCParticles[part.GetDaughterIds()[1]].GetPDG()==0)||(vMCParticles[part.GetDaughterIds()[1]].GetPDG()==-321 && vMCParticles[part.GetDaughterIds()[0]].GetPDG()==0) ){
+//		part.SetPDG(3334);
+//		       }
+//	}
+//THIS SHOULD BE FIXED, only for HE3 embedding (EG, SET FROM MACRO FOR ALL MOTHERID==-1
+//        if(part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==1){
+//                part.SetPDG(1000020030);
+//        }
+//FOR HT embedding ONLy
+        if( part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==2 && vMCParticles[part.GetDaughterIds()[0]].GetPDG()==0 && vMCParticles[part.GetDaughterIds()[1]].GetPDG() ==211 ){
+//		part.SetPDG(3004);				
+//		part.SetPDG(3005);				
+		part.SetPDG(103004);			
+//		part.SetPDG(3006);			
+
+//	cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<< " "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<< vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<  endl;
+//	cout<<"iMC:"<<   iMC<<" "<<vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds().size()<<" "<<vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds().size()<<endl;
+//	cout<<"iMC:"<<iMC<<" "<<  vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[0]].GetPDG()<<" "<<vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[1]].GetPDG()<<endl;
+
+	int d0 = part.GetDaughterIds()[1];
+	int d1 = vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[0];
+	int d2 = vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[1];
+
+	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[1]].GetMotherId()<<endl;
+        //cout<<"vMCParticles:"<<vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[0]].GetMotherId()<<endl;
+        //cout<<"vMCParticles:"<<vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[1]].GetMotherId()<<endl;
+
+	part.CleanDaughters();
+        part.AddDaughter(d0);
+        part.AddDaughter(d2);
+        part.AddDaughter(d1);
+
+	part.SetPDG(103004);
+	//part.SetPDG(3006);
+
+	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[0]].GetMotherId()<<endl;
+	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[1]].GetMotherId()<<endl;
+	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[2]].GetMotherId()<<endl;
+
+
+	vMCParticles[part.GetDaughterIds()[1]].SetMotherId(vMCParticles[part.GetDaughterIds()[0]].GetMotherId());
+	vMCParticles[part.GetDaughterIds()[2]].SetMotherId(vMCParticles[part.GetDaughterIds()[0]].GetMotherId());
+
+	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[0]].GetMotherId()<<endl;
+        //cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[1]].GetMotherId()<<endl;
+        //cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[2]].GetMotherId()<<endl;
+
+	vMCParticles[part.GetDaughterIds()[0]].CleanDaughters();
+
+	//cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<< " "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<< vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<  " "<<vMCParticles[part.GetDaughterIds()[2]].GetPDG()<<endl;
+
+	}
+//FOR HT3body only
+        if( part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==3){
+		if(vMCParticles[part.GetDaughterIds()[0]].GetPDG()==211 && vMCParticles[part.GetDaughterIds()[1]].GetPDG()==2212 && vMCParticles[part.GetDaughterIds()[2]].GetPDG()==-211){
+	//part.SetPDG(3006);
+	//part.SetPDG(3007);
+	part.SetPDG(103004);
+		//cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<<endl;	
+		//cout<<"IsReconstructable:"<<part.IsReconstructable(0)<<" "<<part.IsReconstructable(1)<<" "<<part.IsReconstructable(2)<<" "<<part.IsReconstructable(3)<<" "<<part.IsReconstructable(4)<<" "<<endl;
+	
+	//cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<< " "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<< vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<  " "<<vMCParticles[part.GetDaughterIds()[2]].GetPDG()<<endl;
+
+		}
+	}
+//END HARD CODING
+
+//cout<<"iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<" "<< vMCParticles[iMC].GetMotherId()<<endl;
+//END DEBUG
+
       //change PDG to separate channels
       int indexPDG = fParteff.GetParticleIndex(part.GetPDG());
       for(int iPDG=indexPDG; iPDG<indexPDG+10; iPDG++)
       {
         const int nDaughters = part.GetDaughterIds().size();
+//DEBUG
+//for(int iD=0; iD<nDaughters; iD++){
+// cout<<"daughter id:"<<vMCParticles[part.GetDaughterIds()[iD]].GetPDG()<<" "<<endl;
+//}
+//END DEBUG
         
         if(int(fParteff.partDaughterPdg[iPDG].size()) != nDaughters)
           continue;
@@ -440,6 +537,9 @@ void KFTopoPerformance::GetMCParticles()
         for(int iDMC=0; iDMC<nDaughters; iDMC++)
           for(int iD=0; iD<nDaughters; iD++)
           {
+
+// cout<<"daughter id:"<<vMCParticles[part.GetDaughterIds()[iD]].GetPDG()<<" "<<endl;
+ 
             if(isDaughterUsed[iD]) continue;
             if(vMCParticles[part.GetDaughterIds()[iD]].GetPDG() == fParteff.partDaughterPdg[iPDG][iDMC]) 
             {
@@ -451,10 +551,14 @@ void KFTopoPerformance::GetMCParticles()
 
         for(int iDMC=0; iDMC<nDaughters; iDMC++)
           isCorrectPDG &= isDaughterFound[iDMC];
-        
+
+    //cout<<"1iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<" "<< part.GetDaughterIds().size()<<endl;
+    
         if(isCorrectPDG)
         {
+    //cout<<"2iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
           part.SetPDG(fParteff.partPDG[iPDG]);
+    //cout<<"3iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
           break;
         }
       }
@@ -467,8 +571,10 @@ void KFTopoPerformance::FindReconstructableMCParticles()
   const unsigned int nMCParticles = vMCParticles.size();
 
   for ( unsigned int iP = 0; iP < nMCParticles; iP++ ) {
+//    cout<<"2iMC:" <<  iP<<" pdg:"<<vMCParticles[iP].GetPDG()<<endl;
     KFMCParticle &part = vMCParticles[iP];
     CheckMCParticleIsReconstructable(part);
+//    cout<<"3iMC:" <<  iP<<" pdg:"<<vMCParticles[iP].GetPDG()<<endl;
   }
 }
 
@@ -484,7 +590,8 @@ void KFTopoPerformance::CheckMCParticleIsReconstructable(KFMCParticle &part)
       abs(part.GetPDG()) ==       3112 ||
       abs(part.GetPDG()) ==       3222 ||
       abs(part.GetPDG()) ==       3312 ||
-      abs(part.GetPDG()) ==       3334 )
+      abs(part.GetPDG()) ==       3334 
+)
   {
     int iMCTrack = part.GetMCTrackID();
     KFMCTrack &mcTrack = vMCTracks[iMCTrack];
@@ -556,7 +663,13 @@ void KFTopoPerformance::CheckMCParticleIsReconstructable(KFMCParticle &part)
       for(int iEff=0; iEff<3; iEff++)
         if(nRecoDaughters[iEff] > 1)
           part.SetAsReconstructableV0(iEff);
+
+
     }
+
+
+
+
     
     for(int iPart=0; iPart<fParteff.nParticles; iPart++)
     {
@@ -652,6 +765,12 @@ void KFTopoPerformance::MatchParticles()
   MCtoRParticleId.resize(vMCParticles.size());
   RtoMCParticleId.resize(fTopoReconstructor->GetParticles().size() );
 
+  //DEBUG
+  //for(int i=0;i<vMCParticles.size();i++){
+  //cout<<"i:"<<i<<" "<<vMCParticles[i].GetPDG()<<endl;
+  //}
+  //END DEBUG
+
   // match tracks ( particles which are direct copies of tracks )
   for( unsigned int iRP = 0; iRP < fTopoReconstructor->GetParticles().size(); iRP++ ) 
   {
@@ -737,6 +856,12 @@ void KFTopoPerformance::MatchParticles()
     //normal decays
     else
     {
+    //DEBUG
+    //if (rPart.GetPDG() == 3334){ cout<<"omega found!"<<endl;
+    // cout<<"rPart.NDaughters():"<<rPart.NDaughters() <<endl;    
+    //}
+    //END DEBUG
+    
       unsigned int iD = 0;
       vector<int> mcDaughterIds;
       int mmId = -2; // MC id for rPart
@@ -764,7 +889,14 @@ void KFTopoPerformance::MatchParticles()
         
         if( !(isMissingMass) && (vMCParticles[mdId].GetMotherId() != mmId) ) break;
       }
-      
+      //DEBUG
+//      if (rPart.GetPDG() == 3334){
+//      if (rPart.GetPDG() == 103004){
+//      cout<<"daughters:"<<mcDaughterIds.size()<<" "<<iD<<" "<< mmId<<" "<<nClones<<endl;
+//      cout<<"daughters"<<endl;
+//      }
+      //END DEBUG
+ 
       int nClones = 0;
       sort(mcDaughterIds.begin(), mcDaughterIds.end());
       for(unsigned int ie=1; ie<mcDaughterIds.size(); ie++)
@@ -772,12 +904,29 @@ void KFTopoPerformance::MatchParticles()
         if(mcDaughterIds[ie] == mcDaughterIds[ie-1])
           nClones++;
       }
-
+ 
+      //DEBUG
+      //if (rPart.GetPDG() == 3334){
+      //if (rPart.GetPDG() == 103004){
+      //cout<<"daughters:"<<NRDaughters<<" "<<iD<<" "<<nClones<<endl;
+      //}
+      //END DEBUG
+      
       if(nClones > 0) continue;
       
       if ( iD == NRDaughters && mmId > -1 ) { // match is found and it is not primary vertex
+//      if (  NRDaughters==3 && mmId > -1 ) { // TODO JUST FOR TESTING
         KFMCParticle &mmPart = vMCParticles[mmId];
-        
+ 
+        //DEBUG
+        //if (rPart.GetPDG() == 3122){                 
+        //if (rPart.GetPDG() == 3334){                 
+        //if (rPart.GetPDG() == 103004){                 
+        //cout<<"mmPart.GetPDG():"<<mmPart.GetPDG()<<" rPart.GetPDG():"<<rPart.GetPDG()<<endl;
+        //cout<<"mmPart.NDaughters():"<<mmPart.NDaughters()<<" rPart.NDaughters():"<<rPart.NDaughters()<<endl;
+        //cout<<"GetMCTrackID:"<<mmPart.GetMCTrackID()<<" GetMCTrackID:"<<rPart.GetId()<<endl;
+        //}
+
         if( mmPart.GetPDG()     == rPart.GetPDG()     &&
             mmPart.NDaughters() == rPart.NDaughters() ) {
           MCtoRParticleId[mmId].ids.push_back(iRP);
