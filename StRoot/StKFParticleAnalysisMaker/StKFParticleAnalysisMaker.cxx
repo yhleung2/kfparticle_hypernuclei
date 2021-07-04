@@ -1,4 +1,3 @@
-//TFG18n
 //*-- Author : Yuri Fisyak 02/02/2016
 #include "StKFParticleAnalysisMaker.h"
 #include "TDirectory.h"
@@ -41,7 +40,8 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   fRunCentralityAnalysis(0), fRefmultCorrUtil(0), fCentralityFile(""), fAnalyseDsPhiPi(false)
 {
   memset(mBeg,0,mEnd-mBeg+1);
-  
+
+/*  
   fNTuplePDG[0] = 421;
   fNTuplePDG[1] = 411;
   fNTuplePDG[2] = 431;
@@ -50,7 +50,11 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   fNTuplePDG[5] = 429;
   fNTuplePDG[6] = 521;
   fNTuplePDG[7] = 511;
+  fNTuplePDG[8] = 3122;
+*/
+  fNTuplePDG[0] = 3122;
   
+/*
   fNtupleNames[0] = "D0"; 
   fNtupleNames[1] = "DPlus"; 
   fNtupleNames[2] = "Ds"; 
@@ -59,6 +63,9 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   fNtupleNames[5] = "D04";
   fNtupleNames[6] = "BPlus";
   fNtupleNames[7] = "B0";
+  fNtupleNames[8] = "Ld";
+*/
+  fNtupleNames[0] = "Ld";
   
   vector<TString> trackCutNames;
   trackCutNames.push_back("pt_");
@@ -70,7 +77,8 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   trackCutNames.push_back("ToFK_");
   trackCutNames.push_back("ToFP_");
   fNTrackTMVACuts = trackCutNames.size();
-  
+
+/*  
   fDaughterNames[0].push_back("K");     fDaughterNames[0].push_back("Pi");                                                                              //D0 -> Kpi
   fDaughterNames[1].push_back("K");     fDaughterNames[1].push_back("Pi1");    fDaughterNames[1].push_back("Pi2");                                      //D+ -> Kpipi
   fDaughterNames[2].push_back("KPlus"); fDaughterNames[2].push_back("KMinus"); fDaughterNames[2].push_back("Pi");                                       //Ds -> KKpi
@@ -79,6 +87,8 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   fDaughterNames[5].push_back("K");     fDaughterNames[5].push_back("Pi1");    fDaughterNames[5].push_back("Pi2");  fDaughterNames[5].push_back("Pi3"); //D0 -> Kpipipi
   fDaughterNames[6].push_back("PiD");   fDaughterNames[6].push_back("KD");     fDaughterNames[6].push_back("Pi");                                       //B+ -> D0_bpi
   fDaughterNames[7].push_back("Pi1D");  fDaughterNames[7].push_back("KD");     fDaughterNames[7].push_back("Pi2D"); fDaughterNames[7].push_back("Pi");  //B0 -> D-pi+
+//  fDaughterNames[8].push_back("Proton");fDaughterNames[8].push_back("Pi");
+*/
 
   for(int iDecay=0; iDecay<fNNTuples; iDecay++)
   {
@@ -94,7 +104,9 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
         fNtupleCutNames[iDecay] += ":";
       }
     }
-    if(iDecay<6)
+    if(iDecay==0) 
+      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:Chi2Topo:refMult:mass";	
+    else if(iDecay>0 && iDecay<6 )
       fNtupleCutNames[iDecay] += "Chi2NDF:LdL:Chi2Topo:refMult";
     else if(iDecay>=6 && iDecay<8)
     {
@@ -217,23 +229,25 @@ Int_t StKFParticleAnalysisMaker::Init()
 
   file_out = new TFile("ana_tree.root","RECREATE");
   lambda_tree = new TTree("lambda_tree","ana_tree");
-  lambda_tree->Branch("brunid",&brunid,"brunid/I");
-  lambda_tree->Branch("beventid",&beventid,"beventid/I");
+//  lambda_tree->Branch("brunid",&brunid,"brunid/I");
+//  lambda_tree->Branch("beventid",&beventid,"beventid/I");
 
-  lambda_tree->Branch("bVz",&bVz,"bVz/F");
-  lambda_tree->Branch("bVr",&bVr,"bVr/F");
-  lambda_tree->Branch("bVzerr",&bVzerr,"bVzerr/F");
-  lambda_tree->Branch("bVrerr",&bVrerr,"bVrerr/F");
+//  lambda_tree->Branch("bVz",&bVz,"bVz/F");
+//  lambda_tree->Branch("bVr",&bVr,"bVr/F");
+//  lambda_tree->Branch("bVzerr",&bVzerr,"bVzerr/F");
+//  lambda_tree->Branch("bVrerr",&bVrerr,"bVrerr/F");
 
   lambda_tree->Branch("bparticleid",&bparticleid,"bparticleid/I");
   lambda_tree->Branch("bparticlemass",&bparticlemass,"bparticlemass/F");
-  lambda_tree->Branch("bx",&bx,"bx/F");
-  lambda_tree->Branch("by",&by,"by/F");
-  lambda_tree->Branch("bz",&bz,"bz/F");
+//  lambda_tree->Branch("bx",&bx,"bx/F");
+//  lambda_tree->Branch("by",&by,"by/F");
+//  lambda_tree->Branch("bz",&bz,"bz/F");
   lambda_tree->Branch("bpx",&bpx,"bpx/F");
   lambda_tree->Branch("bpy",&bpy,"bpy/F");
   lambda_tree->Branch("bpz",&bpz,"bpz/F");
-  lambda_tree->Branch("bdl",&bdl,"bdl/F");
+//  lambda_tree->Branch("bdl",&bdl,"bdl/F");
+  lambda_tree->Branch("bismc",&bismc,"bismc/I");
+
 
   cascade_tree = new TTree("cascade_tree","ana_tree");
   cascade_tree->Branch("brunid",&brunid,"brunid/I");
@@ -392,7 +406,9 @@ Int_t StKFParticleAnalysisMaker::Make()
     if(!fMuDst) return kStOK;
     else { if(StMuDst::instance()->numberOfPrimaryVertices() == 0 ) return kStOK; }
   }
-  
+
+  //cout<<"WHERE?"<<endl; 
+ 
   //find max global track index
   int maxGBTrackIndex = -1;
   if(fIsPicoAnalysis)
@@ -447,8 +463,10 @@ Int_t StKFParticleAnalysisMaker::Make()
   if(fIsPicoAnalysis)
     isGoodEvent = fStKFParticleInterface->ProcessEvent(fPicoDst, triggeredTracks);
   else//b
-    isGoodEvent = fStKFParticleInterface->ProcessEvent(fMuDst, triggeredTracks, fProcessSignal);
-//    isGoodEvent = fStKFParticleInterface->ProcessEvent(fMuDst, mcTracks, mcIndices, fProcessSignal);
+//no embedding
+//    isGoodEvent = fStKFParticleInterface->ProcessEvent(fMuDst, triggeredTracks, fProcessSignal);
+//embedding
+    isGoodEvent = fStKFParticleInterface->ProcessEvent(fMuDst, mcTracks, mcIndices, fProcessSignal);
 
 //   bool openCharmTrigger = false;
 //   if(isGoodEvent) openCharmTrigger =  fStKFParticleInterface->OpenCharmTrigger();
@@ -478,6 +496,7 @@ if(bWriteTree){
 	beventid = fMuDst->event()->eventId();
 	brunid = fMuDst->event()->runId();
 
+//cout<<"brunid:"<<brunid<<endl;
   float bestRank=-1000000;
   int bestPV=-1;
   for(unsigned int iPV=0; iPV<fMuDst->numberOfPrimaryVertices(); iPV++)
@@ -501,6 +520,7 @@ if(bWriteTree){
 	hvtx->Fill(bVz);
 if(isGoodEvent){
         hvtxgood->Fill(bVz);
+//cout<<"bVz:"<<bVz<<endl;
 }
 }//if writetree
 
@@ -546,7 +566,7 @@ if(isGoodEvent){
             
             if(fTMVAReader[iReader][iTMVACentralityBin][iTMVAPtBin]->EvaluateMVA("BDT") < fTMVACut[iReader][iTMVACentralityBin][iTMVAPtBin])
               fStKFParticleInterface->RemoveParticle(iParticle);
-            
+           /* 
             if(fAnalyseDsPhiPi && abs(fStKFParticleInterface->GetParticles()[iParticle].GetPDG()) == 431)
             {              
               KFParticle phi;
@@ -560,6 +580,7 @@ if(isGoodEvent){
               if( fabs(mass - 1.01946) > 0.015)
                 fStKFParticleInterface->RemoveParticle(iParticle);
             }
+          */
           }
         }
       }      
@@ -782,13 +803,16 @@ if(fabs(bVz)<70 && bVr<2){
 
        //KFParticle particle;
        //fStKFParticlePerformanceInterface->GetParticle(particle, iParticle);
+        KFParticle particle;
+//       const KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
+             bool isMCParticle = fStKFParticlePerformanceInterface->GetParticle(particle, iParticle);
 
-       const KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
        //int beventid;
        //int brunid;
        //int bparticleid;
        //float bparticlemass;
-
+        bismc =0;
+        if(isMCParticle) bismc=1;
 
         bparticleid   = particle.GetPDG();
         bparticlemass = particle.GetMass();
@@ -799,7 +823,9 @@ if(fabs(bVz)<70 && bVr<2){
         bpy = particle.GetPy();
         bpz = particle.GetPz();
         bdl = particle.GetDecayLength();
-
+         //if(particle.IdTruth()!=0){ 
+        //cout<<"IdTruth():"<<particle.IdTruth()<<" "<< particle.IdParentMcVx()  <<endl;
+//         }
 
 //       const KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];       
        if(fabs(bparticleid)==3312 || fabs(bparticleid)==3334){ 
@@ -918,8 +944,8 @@ if(fabs(bVz)<70 && bVr<2){
        }//GetListOfDaughterTracks
 */
 bool _fill_lambda_tree;
-_fill_lambda_tree = false;
-//_fill_lambda_tree = true;
+//_fill_lambda_tree = false;
+_fill_lambda_tree = true;
 if(_fill_lambda_tree){
 if(fabs(particle.GetPDG())==3122){
       lambda_tree->Fill();
@@ -936,6 +962,7 @@ if(fabs(particle.GetPDG())==3334){
 
     }//write tree bool
 
+//cout<<"fStoreTmvaNTuples:"<<fStoreTmvaNTuples<<" "<< fStKFParticlePerformanceInterface->GetNReconstructedParticles()<<endl;
 
     if(fStoreTmvaNTuples)
     {
@@ -943,7 +970,9 @@ if(fabs(particle.GetPDG())==3334){
       {
         KFParticle particle;
         bool isMCParticle = fStKFParticlePerformanceInterface->GetParticle(particle, iParticle);
-              
+
+ //       cout<<"isMCParticle:"<<isMCParticle<< " "<< particle.GetPDG()<<endl;      
+ 
         if( !( (fProcessSignal && isMCParticle) || (!fProcessSignal && !isMCParticle) ) ) continue;
                   
         for(int iNTuple=0; iNTuple<fNNTuples; iNTuple++)
@@ -951,7 +980,8 @@ if(fabs(particle.GetPDG())==3334){
           if( particle.GetPDG() == fNTuplePDG[iNTuple] )
           {
             GetParticleParameters(iNTuple, particle);
-            fCutsNTuple[iNTuple]->Fill(fTMVAParticleParameters[iNTuple].data());
+            if( fProcessSignal || (!fProcessSignal && fTMVAParticleParameters[iReader][4] ))
+               fCutsNTuple[iNTuple]->Fill(fTMVAParticleParameters[iNTuple].data());
           }
         }
       }
@@ -1046,6 +1076,8 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
     fTMVAParticleParameters[iReader][nDaughterParticleCut + 3] = fPicoDst->event()->refMult();
   else
     fTMVAParticleParameters[iReader][nDaughterParticleCut + 3] = fMuDst->event()->refMult();
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 4] = particle.GetMass();
 }
 
 Int_t StKFParticleAnalysisMaker::Finish() 
