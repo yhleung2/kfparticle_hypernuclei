@@ -383,6 +383,16 @@ Int_t StKFParticleAnalysisMaker::Init()
    htriton_mc_tree->Branch("bmcrawpz",&bmcrawpz,"bmcrawpz/F");
    htriton_mc_tree->Branch("bmcrawl",&bmcrawl,"bmcrawl/F");
    htriton_mc_tree->Branch("bmcrawpl",&bmcrawpl,"bmcrawpl/F");
+
+  htriton_mc_tree->Branch("b0mcrawpx",&b0mcrawpx,"b0mcrawpx/F");
+  htriton_mc_tree->Branch("b0mcrawpy",&b0mcrawpy,"b0mcrawpy/F");
+  htriton_mc_tree->Branch("b0mcrawpz",&b0mcrawpz,"b0mcrawpz/F");
+  htriton_mc_tree->Branch("b1mcrawpx",&b1mcrawpx,"b1mcrawpx/F");
+  htriton_mc_tree->Branch("b1mcrawpy",&b1mcrawpy,"b1mcrawpy/F");
+  htriton_mc_tree->Branch("b1mcrawpz",&b1mcrawpz,"b1mcrawpz/F");
+  htriton_mc_tree->Branch("b2mcrawpx",&b2mcrawpx,"b2mcrawpx/F");
+  htriton_mc_tree->Branch("b2mcrawpy",&b2mcrawpy,"b2mcrawpy/F");
+  htriton_mc_tree->Branch("b2mcrawpz",&b2mcrawpz,"b2mcrawpz/F");
  
    htriton_mc_tree->Branch("countrefmult",&countrefmult,"countrefmult/I");
    htriton_mc_tree->Branch("refmultcor",&refmultcor,"refmultcor/D");
@@ -402,6 +412,10 @@ Int_t StKFParticleAnalysisMaker::Init()
    ks_tree->Branch("ld_dl",&ld_dl,"ld_dl/F");
    ks_tree->Branch("chi2primary_proton",&chi2primary_proton,"chi2primary_proton/F");
    ks_tree->Branch("chi2primary_pi",&chi2primary_pi,"chi2primary_pi/F");
+
+   ks_tree->Branch("nhits_ld_proton",&nhits_ld_proton,"nhits_ld_proton/I");
+   ks_tree->Branch("nhits_ld_pi",&nhits_ld_pi,"nhits_ld_pi/I");
+
    ks_tree->Branch("bparticleid",&bparticleid,"bparticleid/I");
    ks_tree->Branch("bparticlemass",&bparticlemass,"bparticlemass/F");
    ks_tree->Branch("bpx",&bpx,"bpx/F");
@@ -648,6 +662,7 @@ Int_t StKFParticleAnalysisMaker::Init()
    htriton_tree->Branch("ht_chi2topo",&ht_chi2topo,"ht_chi2topo/F");
    htriton_tree->Branch("ht_chi2ndf",&ht_chi2ndf,"ht_chi2ndf/F");
 
+
    htriton_tree->Branch("nhits_he",&nhits_he,"nhits_he/I");
    htriton_tree->Branch("nhits_pi",&nhits_pi,"nhits_pi/I");
 
@@ -706,6 +721,7 @@ Int_t StKFParticleAnalysisMaker::Init()
    htriton3_tree->Branch("bpy",&bpy,"bpy/F");
    htriton3_tree->Branch("bpz",&bpz,"bpz/F");
    htriton3_tree->Branch("ht_chi2",&ht_chi2,"ht_chi2/F");
+  htriton3_tree->Branch("ht_ndaughters",&ht_ndaughters,"ht_ndaughters/I");
    htriton3_tree->Branch("ht_NDF",&ht_NDF,"ht_NDF/F");
 
    htriton3_tree->Branch("chi2primary_proton",&chi2primary_proton,"chi2primary_proton/F");
@@ -745,11 +761,38 @@ Int_t StKFParticleAnalysisMaker::Init()
    htriton3_tree->Branch("bmcpx",&bmcpx,"bmcpx/F");
    htriton3_tree->Branch("bmcpy",&bmcpy,"bmcpy/F");
    htriton3_tree->Branch("bmcpz",&bmcpz,"bmcpz/F");
+
+htriton3_tree->Branch("b0mcpx",&b0mcpx,"b0mcpx/F");
+htriton3_tree->Branch("b0mcpy",&b0mcpy,"b0mcpy/F");
+htriton3_tree->Branch("b0mcpz",&b0mcpz,"b0mcpz/F");
+htriton3_tree->Branch("b1mcpx",&b1mcpx,"b1mcpx/F");
+htriton3_tree->Branch("b1mcpy",&b1mcpy,"b1mcpy/F");
+htriton3_tree->Branch("b1mcpz",&b1mcpz,"b1mcpz/F");
+htriton3_tree->Branch("b2mcpx",&b2mcpx,"b2mcpx/F");
+htriton3_tree->Branch("b2mcpy",&b2mcpy,"b2mcpy/F");
+htriton3_tree->Branch("b2mcpz",&b2mcpz,"b2mcpz/F");
+
+
    htriton3_tree->Branch("bmcl",&bmcl,"bmcl/F");
    htriton3_tree->Branch("bmcpl",&bmcpl,"bmcpl/F");
    htriton3_tree->Branch("bismc",&bismc,"bismc/I");
 
+   htriton3_tree->Branch("v_lambda_mass_0",&v_lambda_mass_0,"v_lambda_mass_0/F");
+   htriton3_tree->Branch("v_lambda_ldl_0",&v_lambda_ldl_0,"v_lambda_ldl_0/F");
+   htriton3_tree->Branch("v_lambda_chi2primary_0",&v_lambda_chi2primary_0,"v_lambda_chi2primary_0/F");
+   htriton3_tree->Branch("mass_01",&mass_01,"mass_01/F");
+   htriton3_tree->Branch("mass_02",&mass_02,"mass_02/F");
+   htriton3_tree->Branch("mass_12",&mass_12,"mass_12/F");
+   htriton3_tree->Branch("v_01_chi2primary",&v_01_chi2primary,"v_01_chi2primary/F");
+   htriton3_tree->Branch("v_02_chi2primary",&v_02_chi2primary,"v_02_chi2primary/F");
+   htriton3_tree->Branch("v_12_chi2primary",&v_12_chi2primary,"v_12_chi2primary/F");
 
+htriton3_tree->Branch("v_01_dca",&v_01_dca,"v_01_dca/F");
+htriton3_tree->Branch("v_02_dca",&v_02_dca,"v_02_dca/F");
+htriton3_tree->Branch("v_12_dca",&v_12_dca,"v_12_dca/F");
+htriton3_tree->Branch("v_01_chi2ndf",&v_01_chi2ndf,"v_01_chi2ndf/F");
+htriton3_tree->Branch("v_02_chi2ndf",&v_02_chi2ndf,"v_02_chi2ndf/F");
+htriton3_tree->Branch("v_12_chi2ndf",&v_12_chi2ndf,"v_12_chi2ndf/F");
 
    he3_tree = new TTree("he3_tree","ana_tree");
    he3_tree->Branch("brunid",&brunid,"brunid/I");
@@ -917,8 +960,8 @@ Int_t StKFParticleAnalysisMaker::Make()
     else { if(StMuDst::instance()->numberOfPrimaryVertices() == 0 ) return kStOK; }
   }
 
-  //_fill_lambda_tree = false;
-  _fill_lambda_tree = true;
+  _fill_lambda_tree = false;
+ //  _fill_lambda_tree = true;
  
   //_fill_he3_tree = true;
   _fill_he3_tree = false;
@@ -1125,7 +1168,9 @@ int ctofmult;
   		if(fPicoDst->event()->isTrigger(610051)) trigger += 100000;
 	}else if(fsnn==3){
   		if(fPicoDst->event()->isTrigger(620052)) trigger += 1;
-	}else{
+	}else if(fsnn==7){
+                if(fPicoDst->event()->isTrigger(630052)) trigger += 1;
+        }else{
   		trigger += 1;
 	}
     }
@@ -1892,10 +1937,12 @@ if(fabs(bVz)<70 && bVr<2){
   		KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];  
   			if(iDaughter==0){
 			chi2primary_proton = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+                        nhits_ld_proton = fStKFParticleInterface->GetNHits(daughter.DaughterIds()[0]);
         		dca_proton = fStKFParticleInterface->Getdca(daughter.DaughterIds()[0]);
 			}
   			if(iDaughter==1){
 			chi2primary_pi = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+                        nhits_ld_pi = fStKFParticleInterface->GetNHits(daughter.DaughterIds()[0]);
 			dca_pi = fStKFParticleInterface->Getdca(daughter.DaughterIds()[0]);
 			}
   	      	}
@@ -2007,7 +2054,6 @@ if(fabs(bVz)<70 && bVr<2){
 		bbachpx = daughter.GetPx();
 		bbachpy = daughter.GetPy();
 		bbachpz = daughter.GetPz();
-
 		}
   		if(iDaughter==1){
 		chi2primary_om_ld = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
@@ -2175,9 +2221,14 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
       		htriton_tree->Fill();
 	}
 
-	if((particle.GetPDG()==103004 || particle.GetPDG()==3007) && isGoodEvent){
+	if((particle.GetPDG()==103004 || particle.GetPDG()==3007 || particle.GetPDG()==103005) && isGoodEvent){
+
+//	cout<<"particle.NDaughters():"<<particle.NDaughters()<<endl;
+
 	if(particle.GetMass()>3.05 && particle.GetPDG()==103004) continue;
-        if(particle.GetMass()>5. && particle.GetPDG()==3007) continue;
+        if(particle.GetMass()>3.2 && particle.GetPDG()==103005) continue;
+        if(particle.GetMass()>5.1 && particle.GetPDG()==3007) continue;
+
 
 	KFParticleSIMD tempSIMDParticle(particle);
   	float_v l,dl;
@@ -2188,6 +2239,7 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
   	ht_dl = dl[0];
 
   	tempSIMDParticle.SetProductionVertex(pv);
+	ht_ndaughters = particle.NDaughters();
  	ht_chi2topo = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
 	ht_chi2 = double(tempSIMDParticle.Chi2()[0]);
   	ht_NDF = double(tempSIMDParticle.NDF()[0]);
@@ -2195,7 +2247,10 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 
 		for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
         		{
-      			int order[4] = {0, 1, 2, 3};
+      			int order[3] = {0, 1, 2};
+
+			if(particle.GetPDG()==3007) {order[1] =  2; order[2] = 1;};
+
   			const int daughterParticleIndex = particle.DaughterIds()[order[iDaughter]];
   			KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
             			if(iDaughter==2){
@@ -2233,6 +2288,62 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
 				}
 
 			}
+
+			KFParticle pion     = fStKFParticleInterface->GetParticles()[particle.DaughterIds()[0]];
+		        KFParticle proton   = fStKFParticleInterface->GetParticles()[particle.DaughterIds()[1]];
+		        KFParticle bach     = fStKFParticleInterface->GetParticles()[particle.DaughterIds()[2]];
+			float m, dm, vl, vdl;
+
+		        KFParticle v_lambda;
+		        v_lambda += pion;
+		        v_lambda += proton;
+		        v_lambda.GetMass(m,dm);
+
+			v_lambda_mass_0 = m;
+			//v_lambda.GetDistanceToVertexLine(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex(), vl, vdl);
+			v_lambda_ldl_0 = vl/vdl;
+                        v_lambda_chi2primary_0 = v_lambda.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+
+			const KFParticle* v_d01[2] = {&pion, &proton};
+			const KFParticle* v_d02[2] = {&pion, &bach};
+			const KFParticle* v_d12[2] = {&proton, &bach};
+
+			KFParticle v_01;
+			KFParticle v_02;
+			KFParticle v_12;
+
+	        	v_01.Construct(v_d01, 2, 0);
+        		v_01.GetMass(mass_01, mass_01_err);
+			v_01_chi2primary = v_01.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+
+			v_02.Construct(v_d02, 2, 0);
+                        v_02.GetMass(mass_02, mass_02_err);
+			v_02_chi2primary = v_02.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+
+			v_12.Construct(v_d12, 2, 0);
+                        v_12.GetMass(mass_12, mass_12_err);
+			v_12_chi2primary = v_12.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+
+//			float v_01_dca;
+//			float v_02_dca;
+//                        float v_12_dca;
+
+//			float v_01_chi2ndf;
+//			float v_02_chi2ndf;
+//			float v_12_chi2ndf;
+
+			v_01_chi2ndf = v_01.Chi2()/v_01.NDF();
+                        v_02_chi2ndf = v_02.Chi2()/v_02.NDF();
+                        v_12_chi2ndf = v_12.Chi2()/v_12.NDF();
+
+			v_01_dca = pion.GetDistanceFromParticleXY(proton);
+			v_02_dca = pion.GetDistanceFromParticleXY(bach);
+			v_12_dca = proton.GetDistanceFromParticleXY(bach);
+
+//			cout<<"dca:"<<v_01_dca<<" "<<v_02_dca<<" "<<v_12_dca<<endl;
+//			cout<<"chi2ndf:"<<v_01_chi2ndf<<" "<<v_02_chi2ndf<<" "<<v_12_chi2ndf<<endl;
+
+
 		bmcpx=-999;
 		bmcpy=-999;
 		bmcpz=-999;
@@ -2252,6 +2363,29 @@ cout<<"dEdX:"<<partId<<" "<<trackId<<" "<<fStKFParticleInterface->GetdEdX(trackI
                                 bmcl = sqrt( (mcvx->XyzV().x()-mcvxend->XyzV().x())*(mcvx->XyzV().x()-mcvxend->XyzV().x()) + (mcvx->XyzV().y()-mcvxend->XyzV().y())*(mcvx->XyzV().y()-mcvxend->XyzV().y()) + (mcvx->XyzV().z()-mcvxend->XyzV().z())*(mcvx->XyzV().z()-mcvxend->XyzV().z()) ) ;
                                 if(particle.GetPDG()==103004) {bmcpl = bmcl * 2.99131 / sqrt(bmcpx*bmcpx+bmcpy*bmcpy+bmcpz*bmcpz) ;}
 				else{bmcpl = bmcl * 4.86824 / sqrt(bmcpx*bmcpx+bmcpy*bmcpy+bmcpz*bmcpz) ;}
+
+				for (Int_t j = 0; j < fMuDst->numberOfMcTracks(); j++) {
+	              			StMuMcTrack *dmcTrack = fMuDst->MCtrack(j);		
+					if(dmcTrack->IdVx() == bmcidvxend){
+						if(dmcTrack->GePid()==45){
+                        			b2mcpx = dmcTrack->Pxyz().x();
+			                        b2mcpy = dmcTrack->Pxyz().y();
+                        			b2mcpz = dmcTrack->Pxyz().z();
+                        	        }
+			                if(dmcTrack->GePid()==9){
+		                	        b0mcpx = dmcTrack->Pxyz().x();
+                			        b0mcpy = dmcTrack->Pxyz().y();
+			                        b0mcpz = dmcTrack->Pxyz().z();
+                	                }
+			                if(dmcTrack->GePid()==14){
+			                        b1mcpx = dmcTrack->Pxyz().x();
+		                       		b1mcpy = dmcTrack->Pxyz().y();
+        			                b1mcpz = dmcTrack->Pxyz().z();
+                        		}	
+					}
+				}
+
+
 		}
 	htriton3_tree->Fill();
 	}
@@ -2396,6 +2530,34 @@ if(fabs(particle.GetPDG())==3005 && isGoodEvent){
         if(abs(bmcparticleid)==3005){
         bmcrawpl = bmcrawl* 3.924/ sqrt(bmcrawpx*bmcrawpx+bmcrawpy*bmcrawpy+bmcrawpz*bmcrawpz) ;
         }
+
+	if(bmcparticleid==103004){
+	for (Int_t j = 0; j < fMuDst->numberOfMcTracks(); j++) {
+
+
+              StMuMcTrack *dmcTrack = fMuDst->MCtrack(j);
+//	                cout<<"dmcTrack->GePid():"<<dmcTrack->GePid()<<" "<< bmcidvxend<<" "<<dmcTrack->IdVx()<<endl;
+	      if(dmcTrack->IdVx() == bmcidvxend){
+//		cout<<"dmcTrack->GePid():"<<dmcTrack->GePid()<<endl;
+//
+		if(dmcTrack->GePid()==45){//deuteron
+			b2mcrawpx = dmcTrack->Pxyz().x();
+         		b2mcrawpy = dmcTrack->Pxyz().y();
+         		b2mcrawpz = dmcTrack->Pxyz().z();
+				}		
+		if(dmcTrack->GePid()==9){//pion
+			b0mcrawpx = dmcTrack->Pxyz().x();
+                        b0mcrawpy = dmcTrack->Pxyz().y();
+                        b0mcrawpz = dmcTrack->Pxyz().z();
+				}
+		if(dmcTrack->GePid()==14){//proton
+			b1mcrawpx = dmcTrack->Pxyz().x();
+                        b1mcrawpy = dmcTrack->Pxyz().y();
+                        b1mcrawpz = dmcTrack->Pxyz().z();
+				}
+				}
+			}
+		}//loop over daughter	
  
 	htriton_mc_tree->Fill();
 	}
@@ -2546,7 +2708,6 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
   nDaughterParticleCut += fDaughterNames[iReader].size()*fNTrackTMVACuts;
   
   fTMVAParticleParameters[iReader][nDaughterParticleCut]   = particle.Chi2()/particle.NDF();  
-  //if(_fill_lambda_tree){ld_chi2ndf = particle.Chi2()/particle.NDF();}
   
   KFParticleSIMD tempSIMDParticle(particle);
   float_v l,dl;
@@ -2555,12 +2716,9 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
   fTMVAParticleParameters[iReader][nDaughterParticleCut + 1] = l[0]/dl[0];
 
   fTMVAParticleParameters[iReader][nDaughterParticleCut + 2] = l[0];
-  //b
-  //if(_fill_lambda_tree){ld_ldl = l[0]/dl[0];}
   
   tempSIMDParticle.SetProductionVertex(pv);
   fTMVAParticleParameters[iReader][nDaughterParticleCut + 3] = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
-  //if(_fill_lambda_tree){ld_chi2topo = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);}
 
   if(fIsPicoAnalysis)
     fTMVAParticleParameters[iReader][nDaughterParticleCut + 4] = fPicoDst->event()->refMult();
