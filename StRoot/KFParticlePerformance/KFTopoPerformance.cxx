@@ -449,65 +449,51 @@ void KFTopoPerformance::GetMCParticles()
 //        if(part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==1){
 //                part.SetPDG(1000020030);
 //        }
+//
+//cout<<"part.GetPDG():"<<part.GetPDG()<<" "<<part.GetDaughterIds().size()<<" "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<<vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<endl;        
 //FOR HT embedding ONLy
-        if( part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==2 && vMCParticles[part.GetDaughterIds()[0]].GetPDG()==0 && vMCParticles[part.GetDaughterIds()[1]].GetPDG() ==211 ){
+        if( part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==2 && vMCParticles[part.GetDaughterIds()[0]].GetPDG()==211 && vMCParticles[part.GetDaughterIds()[1]].GetPDG() ==3122 ){
 //		part.SetPDG(3004);				
 //		part.SetPDG(3005);				
-		part.SetPDG(103004);			
+//		part.SetPDG(103004);			
 //		part.SetPDG(3006);			
 
 //	cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<< " "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<< vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<  endl;
 //	cout<<"iMC:"<<   iMC<<" "<<vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds().size()<<" "<<vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds().size()<<endl;
-//	cout<<"iMC:"<<iMC<<" "<<  vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[0]].GetPDG()<<" "<<vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[1]].GetPDG()<<endl;
+//	cout<<"iMC:"<<iMC<<" "<<  vMCParticles[vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds()[0]].GetPDG()<<" "<<vMCParticles[vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds()[1]].GetPDG()<<endl;
+	if(vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds().size()<2) continue;
 
-	int d0 = part.GetDaughterIds()[1];
-	int d1 = vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[0];
-	int d2 = vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[1];
-
-	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[1]].GetMotherId()<<endl;
-        //cout<<"vMCParticles:"<<vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[0]].GetMotherId()<<endl;
-        //cout<<"vMCParticles:"<<vMCParticles[vMCParticles[part.GetDaughterIds()[0]].GetDaughterIds()[1]].GetMotherId()<<endl;
-
+	if(vMCParticles[vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds()[0]].GetPDG()==2212 && vMCParticles[vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds()[1]].GetPDG()==-211){
+	part.SetPDG(103004);
+	int d0 = part.GetDaughterIds()[0];
+	int d1 = vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds()[0];
+	int d2 = vMCParticles[part.GetDaughterIds()[1]].GetDaughterIds()[1];
 	part.CleanDaughters();
         part.AddDaughter(d0);
         part.AddDaughter(d2);
         part.AddDaughter(d1);
-
 	part.SetPDG(103004);
-	//part.SetPDG(3006);
-
-	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[0]].GetMotherId()<<endl;
-	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[1]].GetMotherId()<<endl;
-	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[2]].GetMotherId()<<endl;
-
-
 	vMCParticles[part.GetDaughterIds()[1]].SetMotherId(vMCParticles[part.GetDaughterIds()[0]].GetMotherId());
 	vMCParticles[part.GetDaughterIds()[2]].SetMotherId(vMCParticles[part.GetDaughterIds()[0]].GetMotherId());
-
-	//cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[0]].GetMotherId()<<endl;
-        //cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[1]].GetMotherId()<<endl;
-        //cout<<"vMCParticles:"<<vMCParticles[part.GetDaughterIds()[2]].GetMotherId()<<endl;
-
 	vMCParticles[part.GetDaughterIds()[0]].CleanDaughters();
-
-	//cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<< " "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<< vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<  " "<<vMCParticles[part.GetDaughterIds()[2]].GetPDG()<<endl;
+		}
 
 	}
 //FOR HT3body only
-        if( part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==3){
-		if(vMCParticles[part.GetDaughterIds()[0]].GetPDG()==211 && vMCParticles[part.GetDaughterIds()[1]].GetPDG()==2212 && vMCParticles[part.GetDaughterIds()[2]].GetPDG()==-211){
+//        if( part.GetPDG()==211 && vMCParticles[iMC].GetMotherId()==-1 && part.GetDaughterIds().size()==3){
+//		if(vMCParticles[part.GetDaughterIds()[0]].GetPDG()==211 && vMCParticles[part.GetDaughterIds()[1]].GetPDG()==2212 && vMCParticles[part.GetDaughterIds()[2]].GetPDG()==-211){
 	//part.SetPDG(3006);
 	//part.SetPDG(3007);
-	part.SetPDG(103004);
+//	part.SetPDG(103004);
 		//cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<<endl;	
 		//cout<<"IsReconstructable:"<<part.IsReconstructable(0)<<" "<<part.IsReconstructable(1)<<" "<<part.IsReconstructable(2)<<" "<<part.IsReconstructable(3)<<" "<<part.IsReconstructable(4)<<" "<<endl;
 	
 	//cout<<"iMC:"<<   iMC<<" ndaughters:"<<part.GetDaughterIds().size()<< " "<<vMCParticles[part.GetDaughterIds()[0]].GetPDG()<<" "<< vMCParticles[part.GetDaughterIds()[1]].GetPDG()<<  " "<<vMCParticles[part.GetDaughterIds()[2]].GetPDG()<<endl;
 
-		}
-	}
+//		}
+//	}
 //END HARD CODING
-
+//cout<<"iMC:"<<endl;
 //cout<<"iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<" "<< vMCParticles[iMC].GetMotherId()<<endl;
 //END DEBUG
 
@@ -552,13 +538,13 @@ void KFTopoPerformance::GetMCParticles()
         for(int iDMC=0; iDMC<nDaughters; iDMC++)
           isCorrectPDG &= isDaughterFound[iDMC];
 
-    //cout<<"1iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<" "<< part.GetDaughterIds().size()<<endl;
+  //  cout<<"1iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<" "<< part.GetDaughterIds().size()<<endl;
     
         if(isCorrectPDG)
         {
-    //cout<<"2iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
+//    cout<<"2iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
           part.SetPDG(fParteff.partPDG[iPDG]);
-    //cout<<"3iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
+//    cout<<"3iMC:" <<  iMC<<" pdg:"<<vMCParticles[iMC].GetPDG()<<endl;
           break;
         }
       }
@@ -571,10 +557,10 @@ void KFTopoPerformance::FindReconstructableMCParticles()
   const unsigned int nMCParticles = vMCParticles.size();
 
   for ( unsigned int iP = 0; iP < nMCParticles; iP++ ) {
-//    cout<<"2iMC:" <<  iP<<" pdg:"<<vMCParticles[iP].GetPDG()<<endl;
+    //cout<<"2iMC:" <<  iP<<" pdg:"<<vMCParticles[iP].GetPDG()<<endl;
     KFMCParticle &part = vMCParticles[iP];
     CheckMCParticleIsReconstructable(part);
-//    cout<<"3iMC:" <<  iP<<" pdg:"<<vMCParticles[iP].GetPDG()<<endl;
+    //cout<<"3iMC:" <<  iP<<" pdg:"<<vMCParticles[iP].GetPDG()<<endl;
   }
 }
 
