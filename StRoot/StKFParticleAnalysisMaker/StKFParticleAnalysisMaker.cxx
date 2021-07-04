@@ -23,6 +23,8 @@
 //--- Mu classes ---
 #include "StMuDSTMaker/COMMON/StMuDst.h"
 #include "StMuDSTMaker/COMMON/StMuTrack.h"
+#include "StMuDSTMaker/COMMON/StMuMcVertex.h"
+#include "StMuDSTMaker/COMMON/StMuMcTrack.h"
 //--- TMVA classes ---
 #include "TMVA/GeneticAlgorithm.h"
 #include "TMVA/GeneticFitter.h"
@@ -53,6 +55,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   fNTuplePDG[8] = 3122;
 */
   fNTuplePDG[0] = 3122;
+  fNTuplePDG[1] = 3334;
   
 /*
   fNtupleNames[0] = "D0"; 
@@ -66,6 +69,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   fNtupleNames[8] = "Ld";
 */
   fNtupleNames[0] = "Ld";
+  fNtupleNames[1] = "Om";
   
   vector<TString> trackCutNames;
   trackCutNames.push_back("pt_");
@@ -90,6 +94,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
 //  fDaughterNames[8].push_back("Proton");fDaughterNames[8].push_back("Pi");
 */
   fDaughterNames[0].push_back("Proton");fDaughterNames[0].push_back("Pi");
+  fDaughterNames[1].push_back("Kaon");fDaughterNames[1].push_back("Proton");fDaughterNames[1].push_back("Pion");
 
   for(int iDecay=0; iDecay<fNNTuples; iDecay++)
   {
@@ -107,7 +112,10 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
     }
     if(iDecay==0) 
       fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:pt";	
-    else if(iDecay>0 && iDecay<6 )
+    else if(iDecay==1 )
+      //fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:pt";
+      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:pt:Chi2NDF_ld:LdL_ld:L_ld:Chi2Topo_ld";
+    else if(iDecay>1 && iDecay<6 )
       fNtupleCutNames[iDecay] += "Chi2NDF:LdL:Chi2Topo:refMult";
     else if(iDecay>=6 && iDecay<8)
     {
@@ -306,24 +314,48 @@ lambda_tree->Branch("chi2primary_pi",&chi2primary_pi,"chi2primary_pi/F");
 
   omega_tree = new TTree("omega_tree","ana_tree");
   omega_tree->Branch("brunid",&brunid,"brunid/I");
-  omega_tree->Branch("beventid",&beventid,"beventid/I");
+ // omega_tree->Branch("beventid",&beventid,"beventid/I");
 
   omega_tree->Branch("bVz",&bVz,"bVz/F");
-  omega_tree->Branch("bVr",&bVr,"bVr/F");
-  omega_tree->Branch("bVzerr",&bVzerr,"bVzerr/F");
-  omega_tree->Branch("bVrerr",&bVrerr,"bVrerr/F");
+ // omega_tree->Branch("bVr",&bVr,"bVr/F");
+ // omega_tree->Branch("bVzerr",&bVzerr,"bVzerr/F");
+ // omega_tree->Branch("bVrerr",&bVrerr,"bVrerr/F");
+  omega_tree->Branch("brefmult",&brefmult,"brefmult/I");
+  omega_tree->Branch("btofmult",&btofmult,"btofmult/I");
 
   omega_tree->Branch("bparticleid",&bparticleid,"bparticleid/I");
   omega_tree->Branch("bparticlemass",&bparticlemass,"bparticlemass/F");
-  omega_tree->Branch("bx",&bx,"bx/F");
-  omega_tree->Branch("by",&by,"by/F");
-  omega_tree->Branch("bz",&bz,"bz/F");
+ // omega_tree->Branch("bx",&bx,"bx/F");
+ // omega_tree->Branch("by",&by,"by/F");
+ // omega_tree->Branch("bz",&bz,"bz/F");
   omega_tree->Branch("bpx",&bpx,"bpx/F");
   omega_tree->Branch("bpy",&bpy,"bpy/F");
   omega_tree->Branch("bpz",&bpz,"bpz/F");
-  omega_tree->Branch("bdl",&bdl,"bdl/F");
+ // omega_tree->Branch("bdl",&bdl,"bdl/F");
+
+  omega_tree->Branch("om_chi2topo",&om_chi2topo,"om_chi2topo/F");
+  omega_tree->Branch("om_chi2ndf",&om_chi2ndf,"om_chi2ndf/F");
+  omega_tree->Branch("om_ldl",&om_ldl,"om_ldl/F");
+
+  omega_tree->Branch("om_ld_chi2topo",&om_ld_chi2topo,"om_ld_chi2topo/F");
+  omega_tree->Branch("om_ld_chi2ndf",&om_ld_chi2ndf,"om_ld_chi2ndf/F");
+  omega_tree->Branch("om_ld_ldl",&om_ld_ldl,"om_ld_ldl/F");
+  omega_tree->Branch("om_ld_l",&om_ld_l,"om_ld_l/F");
+
+omega_tree->Branch("om_l",&om_l,"om_l/F");
+omega_tree->Branch("om_dl",&om_dl,"om_dl/F");
+
+omega_tree->Branch("chi2primary_om_proton",&chi2primary_om_proton,"chi2primary_om_proton/F");
+omega_tree->Branch("chi2primary_om_pi",&chi2primary_om_pi,"chi2primary_om_pi/F");
+omega_tree->Branch("chi2primary_om_bach",&chi2primary_om_bach,"chi2primary_om_bach/F");
+omega_tree->Branch("chi2primary_om_ld",&chi2primary_om_ld,"chi2primary_om_ld/F");
 
 
+  omega_tree->Branch("bmcpx",&bmcpx,"bmcpx/F");
+  omega_tree->Branch("bmcpy",&bmcpy,"bmcpy/F");
+  omega_tree->Branch("bmcpz",&bmcpz,"bmcpz/F");
+  omega_tree->Branch("bismc",&bismc,"bismc/I");
+/*
   omega_tree->Branch("bbachid",&bbachid,"bbachid/I");
   omega_tree->Branch("bbachpx",&bbachpx,"bbachpx/F");
   omega_tree->Branch("bbachpy",&bbachpy,"bbachpy/F");
@@ -341,6 +373,8 @@ lambda_tree->Branch("chi2primary_pi",&chi2primary_pi,"chi2primary_pi/F");
   omega_tree->Branch("bprotonpy",&bprotonpy,"bprotonpy/F");
   omega_tree->Branch("bprotonpz",&bprotonpz,"bprotonpz/F");
   omega_tree->Branch("bprotonmass",&bprotonmass,"bprotonmass/F");
+*/
+
 
     hvtx      = new TH1F("hvtx",    "Vz;Vz(cm);Counts",500,-200,200);
     hvtxgood  = new TH1F("hvtxgood","Vz;Vz(cm);Counts",500,-200,200);
@@ -426,9 +460,9 @@ Int_t StKFParticleAnalysisMaker::Make()
 
   //cout<<"WHERE?"<<endl; 
 // bool _fill_lambda_tree;
-  //_fill_lambda_tree = false;
-_fill_lambda_tree = true;
-//
+  _fill_lambda_tree = false;
+ //_fill_lambda_tree = true;
+
   //find max global track index
   int maxGBTrackIndex = -1;
   if(fIsPicoAnalysis)
@@ -1021,7 +1055,6 @@ if(fabs(bVz)<70 && bVr<2){
 //_fill_lambda_tree = true;
 if(_fill_lambda_tree && isGoodEvent){
 if(fabs(particle.GetPDG())==3122){
-//      GetParticleParameters(0, particle);
 
   KFParticleSIMD tempSIMDParticle(particle);
   float_v l,dl;
@@ -1036,7 +1069,7 @@ if(fabs(particle.GetPDG())==3122){
   ld_chi2ndf = particle.Chi2()/particle.NDF();
 
 for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
-{
+	{
       int order[4] = {0, 1, 2, 3};
   const int daughterParticleIndex = particle.DaughterIds()[order[iDaughter]];
   KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
@@ -1044,7 +1077,7 @@ for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
   if(iDaughter==0){chi2primary_proton = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());}
   if(iDaughter==1){chi2primary_pi = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());}
 
-            }
+	}
   
 
       lambda_tree->Fill();
@@ -1053,7 +1086,83 @@ for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
 if(fabs(particle.GetPDG())==3312 && isGoodEvent){
       cascade_tree->Fill();
 }
+
 if(fabs(particle.GetPDG())==3334 && isGoodEvent){
+
+  KFParticleSIMD tempSIMDParticle(particle);
+  float_v l,dl;
+  KFParticleSIMD pv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  tempSIMDParticle.GetDistanceToVertexLine(pv, l, dl);
+  om_ldl = l[0]/dl[0];
+  om_l = l[0];
+  om_dl = dl[0];
+
+  tempSIMDParticle.SetProductionVertex(pv);
+  om_chi2topo = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
+  om_chi2ndf = particle.Chi2()/particle.NDF();
+
+for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
+	{
+  int order[4] = {0, 1, 2, 3};
+  const int daughterParticleIndex = particle.DaughterIds()[order[iDaughter]];
+  KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
+
+if(iDaughter==0){
+	chi2primary_om_bach = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+//	cout<<"iDaughter:"<<iDaughter<<" "<<daughter.NDaughters()<<endl;
+	}
+  if(iDaughter==1){
+	chi2primary_om_ld = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  KFParticleSIMD ttempSIMDParticle(daughter);
+  float_v tl,tdl;
+
+  KFParticleSIMD tpv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  ttempSIMDParticle.GetDistanceToVertexLine(tpv, tl, tdl);
+  om_ld_ldl = tl[0]/tdl[0];
+  om_ld_l = tl[0];
+  ttempSIMDParticle.SetProductionVertex(tpv);
+  om_ld_chi2topo = double(ttempSIMDParticle.Chi2()[0])/double(ttempSIMDParticle.NDF()[0]);
+  om_ld_chi2ndf = daughter.Chi2()/daughter.NDF();
+
+
+//	cout<<"iDaughter:"<<iDaughter<<" "<<daughter.NDaughters()<<endl;
+        for(int jDaughter=0; jDaughter<daughter.NDaughters(); jDaughter++){
+		int jorder[4] = {0, 1, 2, 3};
+		const int jdaughterParticleIndex = daughter.DaughterIds()[jorder[jDaughter]];
+		  KFParticle granddaughter = fStKFParticleInterface->GetParticles()[jdaughterParticleIndex];
+		if(jDaughter==0){
+        		chi2primary_om_proton = granddaughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+		                }
+                if(jDaughter==1){
+                        chi2primary_om_pi = granddaughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+		                }
+		}	
+	}
+
+	}
+
+
+bmcpx=-999;
+bmcpy=-999;
+bmcpz=-999;
+
+      if(isMCParticle && fProcessSignal){
+
+        int iMCPart = fStKFParticlePerformanceInterface->GetParticleMCId(iParticle);
+//      //cout<<"mcPartid:"<<iMCPart<<endl;
+      	//KFMCParticle &mcPart = vMCParticles[iMCPart];
+//      //cout<<"mcPart:"<<mcPart.GetPDG()<<endl;
+//      // mcTracks
+	StMuMcTrack *mcTrack = fMuDst->MCtrack(iMCPart);
+         bmcpx = mcTrack->Pxyz().x();
+         bmcpy = mcTrack->Pxyz().y();
+         bmcpz = mcTrack->Pxyz().z();
+//      //double mcpt = mcTrack->pT;
+//      //cout<<"mcPt:"<<mcpt<<" "<< particle.GetPx()<<endl;
+//
+       }
+//
+//
       omega_tree->Fill();
 }
 
@@ -1071,18 +1180,48 @@ if(fabs(particle.GetPDG())==3334 && isGoodEvent){
         bool isMCParticle = fStKFParticlePerformanceInterface->GetParticle(particle, iParticle);
 
  //       cout<<"isMCParticle:"<<isMCParticle<< " "<< particle.GetPDG()<<endl;      
- 
+
+//TOBEREVERTED //REVERTED
         if( !( (fProcessSignal && isMCParticle) || (!fProcessSignal && !isMCParticle) ) ) continue;
-                  
+//if(isMCParticle) continue;          
+       
         for(int iNTuple=0; iNTuple<fNNTuples; iNTuple++)
         {
           if( particle.GetPDG() == fNTuplePDG[iNTuple] )
           {
             GetParticleParameters(iNTuple, particle);
             double side_mass = particle.GetMass();
+
             //bool sideband = (side_mass>1.06 && side_mass<1.10) || (side_mass>1.13 && side_mass<1.17);
-            bool sideband = (side_mass>1.085 && side_mass<1.10) || (side_mass>1.125 && side_mass<1.14);//for consistency with long code
-//             bool sideband = true;            
+
+            bool sideband;
+	if(iNTuple==0){ //lambda
+            sideband = (side_mass>1.085 && side_mass<1.10) || (side_mass>1.125 && side_mass<1.14);//for consistency with long code
+	}
+        if(iNTuple==1){ //omega
+
+//	if(isMCParticle){
+
+//	  int iMCPart = fStKFParticlePerformanceInterface->GetParticleMCId(iParticle);
+
+//cout<<"mcPartid:"<<iMCPart<<endl;
+//KFMCParticle &mcPart = vMCParticles[iMCPart];
+//cout<<"mcPart:"<<mcPart.GetPDG()<<endl;
+// mcTracks 
+//StMuMcTrack *mcTrack = fMuDst->MCtrack(iMCPart);
+//double mcpt = mcTrack->Pxyz().x();
+//double mcpt = mcTrack->pT;
+//cout<<"mcPt:"<<mcpt<<" "<< particle.GetPx()<<endl;
+
+//	}
+
+            //sideband = (side_mass>1.61 && side_mass<1.66) || (side_mass>1.685 && side_mass<1.85);//for testing
+            sideband = (side_mass>1.61 && side_mass<1.66) || (side_mass>1.685 && side_mass<1.73);//for consistency with long code
+
+//TOBEREVERTED
+  sideband = true;//for testing
+//            cout<<"fProcessSignal:"<<fProcessSignal<<" isMCParticle:"<<isMCParticle<<endl;
+	}
             if( fProcessSignal || (!fProcessSignal && sideband) )
                fCutsNTuple[iNTuple]->Fill(fTMVAParticleParameters[iNTuple].data());
           }
@@ -1189,6 +1328,30 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
     fTMVAParticleParameters[iReader][nDaughterParticleCut + 5] = particle.GetMass();
 
     fTMVAParticleParameters[iReader][nDaughterParticleCut + 6] = sqrt(particle.GetPx()*particle.GetPx()+particle.GetPy()*particle.GetPy());
+
+
+	if(iReader>0){//cascade or omega
+  int order[4] = {0, 1, 2, 3};
+  const int daughterParticleIndex = particle.DaughterIds()[order[1]];
+  KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
+
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 7]   = daughter.Chi2()/daughter.NDF();
+
+  KFParticleSIMD ttempSIMDParticle(daughter);
+  float_v tl,tdl;
+  KFParticleSIMD tpv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  ttempSIMDParticle.GetDistanceToVertexLine(tpv, tl, tdl);
+
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 8] = tl[0]/tdl[0];
+
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 9] = tl[0];  
+
+  ttempSIMDParticle.SetProductionVertex(tpv); 
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 10] = double(ttempSIMDParticle.Chi2()[0])/double(ttempSIMDParticle.NDF()[0]);
+		
+
+
+	}
 }
 
 Int_t StKFParticleAnalysisMaker::Finish() 
