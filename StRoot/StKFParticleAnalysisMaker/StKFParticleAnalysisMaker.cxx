@@ -37,7 +37,7 @@ ClassImp(StKFParticleAnalysisMaker);
 
 //________________________________________________________________________________
 StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker(name), fNTrackTMVACuts(0), fIsPicoAnalysis(true), fdEdXMode(1), 
-  fStoreTmvaNTuples(false), fProcessSignal(false), fCollectTrackHistograms(false), fCollectPIDHistograms(false),fTMVAselection(false), 
+  fStoreTmvaNTuples(false), fProcessSignal(false), fCollectTrackHistograms(false), fCollectPIDHistograms(false),fTMVAselection(false), fStoremctree(false),
   fFlowAnalysis(false), fFlowChain(NULL), fFlowRunId(-1), fFlowEventId(-1), fCentrality(-1), fFlowFiles(), fFlowMap(), 
   fRunCentralityAnalysis(0), fRefmultCorrUtil(0), fCentralityFile(""), fAnalyseDsPhiPi(false)
 {
@@ -56,6 +56,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
 */
   fNTuplePDG[0] = 3122;
   fNTuplePDG[1] = 3334;
+  fNTuplePDG[2] = 3312;
   
 /*
   fNtupleNames[0] = "D0"; 
@@ -70,6 +71,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
 */
   fNtupleNames[0] = "Ld";
   fNtupleNames[1] = "Om";
+  fNtupleNames[2] = "Xi";
   
   vector<TString> trackCutNames;
   trackCutNames.push_back("pt_");
@@ -95,6 +97,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
 */
   fDaughterNames[0].push_back("Proton");fDaughterNames[0].push_back("Pi");
   fDaughterNames[1].push_back("Kaon");fDaughterNames[1].push_back("Proton");fDaughterNames[1].push_back("Pion");
+  fDaughterNames[2].push_back("Pion_bach");fDaughterNames[2].push_back("Proton");fDaughterNames[2].push_back("Pion");
 
   for(int iDecay=0; iDecay<fNNTuples; iDecay++)
   {
@@ -111,11 +114,11 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
       }
     }
     if(iDecay==0) 
-      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:pt";	
-    else if(iDecay==1 )
+      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:px:py:pz:vx:vy:vz:evx:evy:evz";	
+    else if(iDecay==1 || iDecay==2)
       //fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:pt";
-      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:pt:Chi2NDF_ld:LdL_ld:L_ld:Chi2Topo_ld";
-    else if(iDecay>1 && iDecay<6 )
+      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:px:py:pz:vx:vy:vz:evx:evy:evz:Chi2NDF_ld:LdL_ld:L_ld:Chi2Topo_ld";
+    else if(iDecay>2 && iDecay<6 )
       fNtupleCutNames[iDecay] += "Chi2NDF:LdL:Chi2Topo:refMult";
     else if(iDecay>=6 && iDecay<8)
     {
@@ -270,7 +273,23 @@ lambda_tree->Branch("chi2primary_pi",&chi2primary_pi,"chi2primary_pi/F");
   lambda_tree->Branch("bpy",&bpy,"bpy/F");
   lambda_tree->Branch("bpz",&bpz,"bpz/F");
 //  lambda_tree->Branch("bdl",&bdl,"bdl/F");
+
+  lambda_tree->Branch("notbadrun",&notbadrun,"notbadrun/I");
+
+  lambda_tree->Branch("bmcpx",&bmcpx,"bmcpx/F");
+  lambda_tree->Branch("bmcpy",&bmcpy,"bmcpy/F");
+  lambda_tree->Branch("bmcpz",&bmcpz,"bmcpz/F");
   lambda_tree->Branch("bismc",&bismc,"bismc/I");
+
+
+  lambda_mc_tree = new TTree("lambda_mc_tree","ana_tree");
+  lambda_mc_tree->Branch("brunid",&brunid,"brunid/I");
+  lambda_mc_tree->Branch("brefmult",&brefmult,"brefmult/I");
+  lambda_mc_tree->Branch("bmcparticleid",&bmcparticleid,"bmcparticleid/I");
+  lambda_mc_tree->Branch("bmcrawpx",&bmcrawpx,"bmcrawpx/F");
+  lambda_mc_tree->Branch("bmcrawpy",&bmcrawpy,"bmcrawpy/F");
+  lambda_mc_tree->Branch("bmcrawpz",&bmcrawpz,"bmcrawpz/F");
+
 
 
   cascade_tree = new TTree("cascade_tree","ana_tree");
@@ -278,37 +297,70 @@ lambda_tree->Branch("chi2primary_pi",&chi2primary_pi,"chi2primary_pi/F");
   cascade_tree->Branch("beventid",&beventid,"beventid/I");
 
   cascade_tree->Branch("bVz",&bVz,"bVz/F");
-  cascade_tree->Branch("bVr",&bVr,"bVr/F");
-  cascade_tree->Branch("bVzerr",&bVzerr,"bVzerr/F");
-  cascade_tree->Branch("bVrerr",&bVrerr,"bVrerr/F");
+//  cascade_tree->Branch("bVr",&bVr,"bVr/F");
+//  cascade_tree->Branch("bVzerr",&bVzerr,"bVzerr/F");
+//  cascade_tree->Branch("bVrerr",&bVrerr,"bVrerr/F");
 
   cascade_tree->Branch("bparticleid",&bparticleid,"bparticleid/I");
   cascade_tree->Branch("bparticlemass",&bparticlemass,"bparticlemass/F");
-  cascade_tree->Branch("bx",&bx,"bx/F");
-  cascade_tree->Branch("by",&by,"by/F");
-  cascade_tree->Branch("bz",&bz,"bz/F");
+//  cascade_tree->Branch("bx",&bx,"bx/F");
+//  cascade_tree->Branch("by",&by,"by/F");
+//  cascade_tree->Branch("bz",&bz,"bz/F");
   cascade_tree->Branch("bpx",&bpx,"bpx/F");
   cascade_tree->Branch("bpy",&bpy,"bpy/F");
   cascade_tree->Branch("bpz",&bpz,"bpz/F");
-  cascade_tree->Branch("bdl",&bdl,"bdl/F");
+//  cascade_tree->Branch("bdl",&bdl,"bdl/F");
 
-  cascade_tree->Branch("bbachid",&bbachid,"bbachid/I");
-  cascade_tree->Branch("bbachpx",&bbachpx,"bbachpx/F");
-  cascade_tree->Branch("bbachpy",&bbachpy,"bbachpy/F");
-  cascade_tree->Branch("bbachpz",&bbachpz,"bbachpz/F");
-  cascade_tree->Branch("bbachmass",&bbachmass,"bbachmass/F");
+//  cascade_tree->Branch("bbachid",&bbachid,"bbachid/I");
+//  cascade_tree->Branch("bbachpx",&bbachpx,"bbachpx/F");
+//  cascade_tree->Branch("bbachpy",&bbachpy,"bbachpy/F");
+//  cascade_tree->Branch("bbachpz",&bbachpz,"bbachpz/F");
+//  cascade_tree->Branch("bbachmass",&bbachmass,"bbachmass/F");
 
-  cascade_tree->Branch("bpionid",&bpionid,"bpionid/I");
-  cascade_tree->Branch("bpionpx",&bpionpx,"bpionpx/F");
-  cascade_tree->Branch("bpionpy",&bpionpy,"bpionpy/F");
-  cascade_tree->Branch("bpionpz",&bpionpz,"bpionpz/F");
-  cascade_tree->Branch("bpionmass",&bpionmass,"bpionmass/F");
+//  cascade_tree->Branch("bpionid",&bpionid,"bpionid/I");
+//  cascade_tree->Branch("bpionpx",&bpionpx,"bpionpx/F");
+//  cascade_tree->Branch("bpionpy",&bpionpy,"bpionpy/F");
+//  cascade_tree->Branch("bpionpz",&bpionpz,"bpionpz/F");
+//  cascade_tree->Branch("bpionmass",&bpionmass,"bpionmass/F");
 
-  cascade_tree->Branch("bprotonid",&bprotonid,"bprotonid/I");
-  cascade_tree->Branch("bprotonpx",&bprotonpx,"bprotonpx/F");
-  cascade_tree->Branch("bprotonpy",&bprotonpy,"bprotonpy/F");
-  cascade_tree->Branch("bprotonpz",&bprotonpz,"bprotonpz/F");
-  cascade_tree->Branch("bprotonmass",&bprotonmass,"bprotonmass/F");
+//  cascade_tree->Branch("bprotonid",&bprotonid,"bprotonid/I");
+//  cascade_tree->Branch("bprotonpx",&bprotonpx,"bprotonpx/F");
+//  cascade_tree->Branch("bprotonpy",&bprotonpy,"bprotonpy/F");
+//  cascade_tree->Branch("bprotonpz",&bprotonpz,"bprotonpz/F");
+//  cascade_tree->Branch("bprotonmass",&bprotonmass,"bprotonmass/F");
+
+  cascade_tree->Branch("xi_chi2topo",&xi_chi2topo,"xi_chi2topo/F");
+  cascade_tree->Branch("xi_chi2ndf",&xi_chi2ndf,"xi_chi2ndf/F");
+  cascade_tree->Branch("xi_ldl",&xi_ldl,"xi_ldl/F");
+
+  cascade_tree->Branch("xi_ld_chi2topo",&xi_ld_chi2topo,"xi_ld_chi2topo/F");
+  cascade_tree->Branch("xi_ld_chi2ndf",&xi_ld_chi2ndf,"xi_ld_chi2ndf/F");
+  cascade_tree->Branch("xi_ld_ldl",&xi_ld_ldl,"xi_ld_ldl/F");
+  cascade_tree->Branch("xi_ld_l",&xi_ld_l,"xi_ld_l/F");
+
+cascade_tree->Branch("xi_l",&xi_l,"xi_l/F");
+cascade_tree->Branch("xi_dl",&xi_dl,"xi_dl/F");
+
+cascade_tree->Branch("chi2primary_xi_proton",&chi2primary_xi_proton,"chi2primary_xi_proton/F");
+cascade_tree->Branch("chi2primary_xi_pi",&chi2primary_xi_pi,"chi2primary_xi_pi/F");
+cascade_tree->Branch("chi2primary_xi_bach",&chi2primary_xi_bach,"chi2primary_xi_bach/F");
+cascade_tree->Branch("chi2primary_xi_ld",&chi2primary_xi_ld,"chi2primary_xi_ld/F");
+
+cascade_tree->Branch("notbadrun",&notbadrun,"notbadrun/I");
+
+  cascade_tree->Branch("bmcpx",&bmcpx,"bmcpx/F");
+  cascade_tree->Branch("bmcpy",&bmcpy,"bmcpy/F");
+  cascade_tree->Branch("bmcpz",&bmcpz,"bmcpz/F");
+  cascade_tree->Branch("bismc",&bismc,"bismc/I");
+
+
+  cascade_mc_tree = new TTree("cascade_mc_tree","ana_tree");
+  cascade_mc_tree->Branch("brunid",&brunid,"brunid/I");
+  cascade_mc_tree->Branch("brefmult",&brefmult,"brefmult/I");
+  cascade_mc_tree->Branch("bmcparticleid",&bmcparticleid,"bmcparticleid/I");
+  cascade_mc_tree->Branch("bmcrawpx",&bmcrawpx,"bmcrawpx/F");
+  cascade_mc_tree->Branch("bmcrawpy",&bmcrawpy,"bmcrawpy/F");
+  cascade_mc_tree->Branch("bmcrawpz",&bmcrawpz,"bmcrawpz/F");
 
 
 
@@ -350,11 +402,23 @@ omega_tree->Branch("chi2primary_om_pi",&chi2primary_om_pi,"chi2primary_om_pi/F")
 omega_tree->Branch("chi2primary_om_bach",&chi2primary_om_bach,"chi2primary_om_bach/F");
 omega_tree->Branch("chi2primary_om_ld",&chi2primary_om_ld,"chi2primary_om_ld/F");
 
+omega_tree->Branch("notbadrun",&notbadrun,"notbadrun/I");
 
   omega_tree->Branch("bmcpx",&bmcpx,"bmcpx/F");
   omega_tree->Branch("bmcpy",&bmcpy,"bmcpy/F");
   omega_tree->Branch("bmcpz",&bmcpz,"bmcpz/F");
   omega_tree->Branch("bismc",&bismc,"bismc/I");
+
+
+  omega_mc_tree = new TTree("omega_mc_tree","ana_tree");
+  omega_mc_tree->Branch("brunid",&brunid,"brunid/I");
+  omega_mc_tree->Branch("brefmult",&brefmult,"brefmult/I");
+  omega_mc_tree->Branch("bmcparticleid",&bmcparticleid,"bmcparticleid/I");
+  omega_mc_tree->Branch("bmcrawpx",&bmcrawpx,"bmcrawpx/F");
+  omega_mc_tree->Branch("bmcrawpy",&bmcrawpy,"bmcrawpy/F");
+  omega_mc_tree->Branch("bmcrawpz",&bmcrawpz,"bmcrawpz/F");
+
+
 /*
   omega_tree->Branch("bbachid",&bbachid,"bbachid/I");
   omega_tree->Branch("bbachpx",&bbachpx,"bbachpx/F");
@@ -458,10 +522,9 @@ Int_t StKFParticleAnalysisMaker::Make()
     else { if(StMuDst::instance()->numberOfPrimaryVertices() == 0 ) return kStOK; }
   }
 
-  //cout<<"WHERE?"<<endl; 
 // bool _fill_lambda_tree;
-  _fill_lambda_tree = false;
- //_fill_lambda_tree = true;
+  //_fill_lambda_tree = false;
+  _fill_lambda_tree = true;
 
   //find max global track index
   int maxGBTrackIndex = -1;
@@ -532,7 +595,7 @@ Int_t StKFParticleAnalysisMaker::Make()
 //whatever is in Process event skip level
 
     bool bWriteTree = true;
-if(bWriteTree){ 
+//if(bWriteTree){ 
        if(fIsPicoAnalysis){
 	beventid = fPicoDst->event()->eventId();
 	brunid = fPicoDst->event()->runId();
@@ -540,9 +603,13 @@ if(bWriteTree){
   const TVector3 picoPV = fPicoDst->event()->primaryVertex();
   const TVector3 picoPVError = fPicoDst->event()->primaryVertexError();
 
+	bVx = picoPV.x();
+	bVy = picoPV.y();
         bVr = sqrt(picoPV.x()*picoPV.x()+picoPV.y()*picoPV.y());
         bVz = picoPV.z(); 
         bVrerr = sqrt(picoPVError.x()*picoPVError.x()+picoPVError.y()*picoPVError.y());
+	bVxerr = picoPVError.x();
+	bVyerr = picoPVError.y();
         bVzerr = picoPVError.z();
 
 	}
@@ -564,19 +631,19 @@ if(bWriteTree){
     else continue;
 
     bVr = sqrt(Vtx->position().x()*Vtx->position().x()+Vtx->position().y()*Vtx->position().y());
+    bVx = Vtx->position().x();
+    bVy = Vtx->position().y();
     bVz = Vtx->position().z();
     bVrerr = sqrt(Vtx->posError().x()*Vtx->posError().x()+Vtx->posError().y()*Vtx->posError().y());
+    bVxerr = Vtx->posError().x();
+    bVyerr = Vtx->posError().y();
     bVzerr = Vtx->posError().z();
 	}
 
 }
 
 	hvtx->Fill(bVz);
-//if(isGoodEvent){
-//        hvtxgood->Fill(bVz);
-//cout<<"bVz:"<<bVz<<endl;
-//}
-}//if writetree
+//}//if writetree
 
 
 //cut on refmult and tofmult, trigger, to cut on good event. this cut is only for real analysis!! 
@@ -599,6 +666,7 @@ int ctofmult;
  if(crefmult>(0.42*ctofmult+16) || crefmult<(0.02*ctofmult-5)) isGoodEvent = false;
 
   int trigger=0;
+  notbadrun=0;
 
 if(fIsPicoAnalysis){
   if(fPicoDst->event()->isTrigger(610001)) trigger += 1;
@@ -611,8 +679,102 @@ if(fIsPicoAnalysis){
 else{
 trigger+=1; //auto pass trigger because we co not use mudst for real analysis anyway
 }
+
+if(fIsPicoAnalysis){
+if(brunid==19130085) notbadrun+=1;
+if(brunid==19131009) notbadrun+=1;
+if(brunid==19131010) notbadrun+=1;
+if(brunid==19131012) notbadrun+=1;
+if(brunid==19132063) notbadrun+=1;
+if(brunid==19133009) notbadrun+=1;
+if(brunid==19133010) notbadrun+=1;
+if(brunid==19133012) notbadrun+=1;
+if(brunid==19133013) notbadrun+=1;
+if(brunid==19133014) notbadrun+=1;
+if(brunid==19133018) notbadrun+=1;
+if(brunid==19134010) notbadrun+=1;
+if(brunid==19134011) notbadrun+=1;
+if(brunid==19135011) notbadrun+=1;
+if(brunid==19135013) notbadrun+=1;
+if(brunid==19135014) notbadrun+=1;
+if(brunid==19136016) notbadrun+=1;
+if(brunid==19137003) notbadrun+=1;
+if(brunid==19137022) notbadrun+=1;
+if(brunid==19137047) notbadrun+=1;
+if(brunid==19137050) notbadrun+=1;
+if(brunid==19137051) notbadrun+=1;
+if(brunid==19137052) notbadrun+=1;
+if(brunid==19137053) notbadrun+=1;
+if(brunid==19137056) notbadrun+=1;
+if(brunid==19137057) notbadrun+=1;
+if(brunid==19138008) notbadrun+=1;
+if(brunid==19138009) notbadrun+=1;
+if(brunid==19138014) notbadrun+=1;
+if(brunid==19139022) notbadrun+=1;
+if(brunid==19139023) notbadrun+=1;
+if(brunid==19139024) notbadrun+=1;
+if(brunid==19139026) notbadrun+=1;
+if(brunid==19139027) notbadrun+=1;
+if(brunid==19139028) notbadrun+=1;
+if(brunid==19139032) notbadrun+=1;
+if(brunid==19139033) notbadrun+=1;
+if(brunid==19139034) notbadrun+=1;
+if(brunid==19139037) notbadrun+=1;
+if(brunid==19140009) notbadrun+=1;
+if(brunid==19140014) notbadrun+=1;
+if(brunid==19141008) notbadrun+=1;
+if(brunid==19142005) notbadrun+=1;
+if(brunid==19142048) notbadrun+=1;
+if(brunid==19143008) notbadrun+=1;
+if(brunid==19143009) notbadrun+=1;
+if(brunid==19143010) notbadrun+=1;
+if(brunid==19143011) notbadrun+=1;
+if(brunid==19143012) notbadrun+=1;
+if(brunid==19143013) notbadrun+=1;
+if(brunid==19143014) notbadrun+=1;
+if(brunid==19143015) notbadrun+=1;
+if(brunid==19143016) notbadrun+=1;
+if(brunid==19143017) notbadrun+=1;
+if(brunid==19146016) notbadrun+=1;
+if(brunid==19147007) notbadrun+=1;
+if(brunid==19147008) notbadrun+=1;
+if(brunid==19147009) notbadrun+=1;
+if(brunid==19147010) notbadrun+=1;
+if(brunid==19147014) notbadrun+=1;
+if(brunid==19147015) notbadrun+=1;
+if(brunid==19147016) notbadrun+=1;
+if(brunid==19156002) notbadrun+=1;
+if(brunid==19156032) notbadrun+=1;
+if(brunid==19156044) notbadrun+=1;
+if(brunid==19156045) notbadrun+=1;
+if(brunid==19156046) notbadrun+=1;
+if(brunid==19157013) notbadrun+=1;
+if(brunid==19157018) notbadrun+=1;
+if(brunid==19158003) notbadrun+=1;
+if(brunid==19158007) notbadrun+=1;
+if(brunid==19158009) notbadrun+=1;
+if(brunid==19158010) notbadrun+=1;
+if(brunid==19158011) notbadrun+=1;
+if(brunid==19158013) notbadrun+=1;
+if(brunid==19158014) notbadrun+=1;
+if(brunid==19158015) notbadrun+=1;
+if(brunid==19158017) notbadrun+=1;
+if(brunid==19158018) notbadrun+=1;
+if(brunid==19158019) notbadrun+=1;
+if(brunid==19160018) notbadrun+=1;
+if(brunid==19162002) notbadrun+=1;
+if(brunid==19162005) notbadrun+=1;
+if(brunid==19165015) notbadrun+=1;
+if(brunid==19165020) notbadrun+=1;
+if(brunid==19165021) notbadrun+=1;
+if(brunid==19167042) notbadrun+=1;
+}
+
   //cout<<"trigger:"<<trigger<<endl;
    if(trigger==0) isGoodEvent = false;
+   if(notbadrun!=0) isGoodEvent = false;
+
+
 if(isGoodEvent){
         hvtxgood->Fill(bVz);
         hrefmult->Fill(crefmult);
@@ -745,9 +907,12 @@ if(isGoodEvent){
     fStKFParticlePerformanceInterface->PerformanceAnalysis();
 //    cout<<"fStKFParticlePerformanceInterface->GetNReconstructedParticles()"<<
 //    fStKFParticlePerformanceInterface->GetNReconstructedParticles()<<endl;
+//
+//
+    
     //b
     bool bDEBUG = false;
-    if(bDEBUG){
+    if(bDEBUG){/*
     //check track ID:
     for(int iParticle=0; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++)
     {
@@ -839,7 +1004,7 @@ if(isGoodEvent){
        }
 //GetListOfDaughterTracks
     }
-
+*/
   }
 
 
@@ -947,11 +1112,12 @@ if(fabs(bVz)<70 && bVr<2){
        KFParticle daughter2;
        fStKFParticlePerformanceInterface->GetParticle(daughter2, cascadedaughterid[1]);
 
+//       cout<<"PDG:"<<bparticleid<<endl;
+//       cout << "daughter PDG:" << cascadedaughterid.size() << " " <<
+//       daughter1.GetPDG() << " " << daughter2.GetPDG() << endl;
+//       cout << "daughter no daughters:" << daughter1.DaughterIds().size() << 
+//       " " << daughter2.DaughterIds().size() << endl;
 
-       //cout << "daughter PDG:" << cascadedaughterid.size() << " " <<
-       // daughter1.GetPDG() << " " << daughter2.GetPDG() << endl;
-       //cout << "daughter no daughters:" << daughter1.DaughterIds().size() << 
-       //" " << daughter2.DaughterIds().size() << endl;
        vector<int> lambdadaughterid;
        lambdadaughterid = daughter2.DaughterIds();
         
@@ -984,7 +1150,8 @@ if(fabs(bVz)<70 && bVr<2){
 	bprotonpy = lambdadaughter2.GetPy();
         bprotonpz = lambdadaughter2.GetPz();
         bprotonmass = lambdadaughter2.GetMass();
-
+       
+//       cout<<"END OF LOOP"<<endl;
    }//cascade loop
    
        //cout << daughter1.GetPx() << " " << daughter1.GetPy() << " " << daughter1.GetPz() << endl;
@@ -1079,13 +1246,87 @@ for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
 
 	}
   
+bmcpx=-999;
+bmcpy=-999;
+bmcpz=-999;
+
+if(isMCParticle && fProcessSignal){
+
+int iMCPart = fStKFParticlePerformanceInterface->GetParticleMCId(iParticle);
+StMuMcTrack *mcTrack = fMuDst->MCtrack(iMCPart);
+bmcpx = mcTrack->Pxyz().x();
+bmcpy = mcTrack->Pxyz().y();
+bmcpz = mcTrack->Pxyz().z();
+
+}
+
 
       lambda_tree->Fill();
 }
 }
+
 if(fabs(particle.GetPDG())==3312 && isGoodEvent){
+
+  KFParticleSIMD tempSIMDParticle(particle);
+  float_v l,dl;
+  KFParticleSIMD pv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  tempSIMDParticle.GetDistanceToVertexLine(pv, l, dl);
+  xi_ldl = l[0]/dl[0];
+  xi_l = l[0];
+  xi_dl = dl[0];
+
+  tempSIMDParticle.SetProductionVertex(pv);
+  xi_chi2topo = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
+  xi_chi2ndf = particle.Chi2()/particle.NDF();
+
+for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
+        {
+  int order[4] = {0, 1, 2, 3};
+  const int daughterParticleIndex = particle.DaughterIds()[order[iDaughter]];
+  KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
+
+if(iDaughter==0){
+        chi2primary_xi_bach = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+        }
+  if(iDaughter==1){
+        chi2primary_xi_ld = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  KFParticleSIMD ttempSIMDParticle(daughter);
+  float_v tl,tdl;
+
+  KFParticleSIMD tpv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  ttempSIMDParticle.GetDistanceToVertexLine(tpv, tl, tdl);
+  xi_ld_ldl = tl[0]/tdl[0];
+  xi_ld_l = tl[0];
+  ttempSIMDParticle.SetProductionVertex(tpv);
+  xi_ld_chi2topo = double(ttempSIMDParticle.Chi2()[0])/double(ttempSIMDParticle.NDF()[0]);
+  xi_ld_chi2ndf = daughter.Chi2()/daughter.NDF();
+
+        for(int jDaughter=0; jDaughter<daughter.NDaughters(); jDaughter++){
+                int jorder[4] = {0, 1, 2, 3};
+                const int jdaughterParticleIndex = daughter.DaughterIds()[jorder[jDaughter]];
+                  KFParticle granddaughter = fStKFParticleInterface->GetParticles()[jdaughterParticleIndex];
+                if(jDaughter==0){
+                        chi2primary_xi_proton = granddaughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+                                }
+                if(jDaughter==1){
+                        chi2primary_xi_pi = granddaughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+                                }
+                }
+        }
+}
+bmcpx=-999;
+bmcpy=-999;
+bmcpz=-999;
+      if(isMCParticle && fProcessSignal){
+        int iMCPart = fStKFParticlePerformanceInterface->GetParticleMCId(iParticle);
+        StMuMcTrack *mcTrack = fMuDst->MCtrack(iMCPart);
+         bmcpx = mcTrack->Pxyz().x();
+         bmcpy = mcTrack->Pxyz().y();
+         bmcpz = mcTrack->Pxyz().z();
+       }
       cascade_tree->Fill();
 }
+
 
 if(fabs(particle.GetPDG())==3334 && isGoodEvent){
 
@@ -1096,6 +1337,7 @@ if(fabs(particle.GetPDG())==3334 && isGoodEvent){
   om_ldl = l[0]/dl[0];
   om_l = l[0];
   om_dl = dl[0];
+
 
   tempSIMDParticle.SetProductionVertex(pv);
   om_chi2topo = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
@@ -1109,7 +1351,6 @@ for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
 
 if(iDaughter==0){
 	chi2primary_om_bach = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
-//	cout<<"iDaughter:"<<iDaughter<<" "<<daughter.NDaughters()<<endl;
 	}
   if(iDaughter==1){
 	chi2primary_om_ld = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
@@ -1124,8 +1365,6 @@ if(iDaughter==0){
   om_ld_chi2topo = double(ttempSIMDParticle.Chi2()[0])/double(ttempSIMDParticle.NDF()[0]);
   om_ld_chi2ndf = daughter.Chi2()/daughter.NDF();
 
-
-//	cout<<"iDaughter:"<<iDaughter<<" "<<daughter.NDaughters()<<endl;
         for(int jDaughter=0; jDaughter<daughter.NDaughters(); jDaughter++){
 		int jorder[4] = {0, 1, 2, 3};
 		const int jdaughterParticleIndex = daughter.DaughterIds()[jorder[jDaughter]];
@@ -1138,31 +1377,17 @@ if(iDaughter==0){
 		                }
 		}	
 	}
-
-	}
-
-
+}
 bmcpx=-999;
 bmcpy=-999;
 bmcpz=-999;
-
       if(isMCParticle && fProcessSignal){
-
         int iMCPart = fStKFParticlePerformanceInterface->GetParticleMCId(iParticle);
-//      //cout<<"mcPartid:"<<iMCPart<<endl;
-      	//KFMCParticle &mcPart = vMCParticles[iMCPart];
-//      //cout<<"mcPart:"<<mcPart.GetPDG()<<endl;
-//      // mcTracks
 	StMuMcTrack *mcTrack = fMuDst->MCtrack(iMCPart);
          bmcpx = mcTrack->Pxyz().x();
          bmcpy = mcTrack->Pxyz().y();
          bmcpz = mcTrack->Pxyz().z();
-//      //double mcpt = mcTrack->pT;
-//      //cout<<"mcPt:"<<mcpt<<" "<< particle.GetPx()<<endl;
-//
        }
-//
-//
       omega_tree->Fill();
 }
 
@@ -1171,6 +1396,47 @@ bmcpz=-999;
     }//write tree bool
 
 //cout<<"fStoreTmvaNTuples:"<<fStoreTmvaNTuples<<" "<< fStKFParticlePerformanceInterface->GetNReconstructedParticles()<<endl;
+
+
+
+    if(fStoremctree && isGoodEvent){
+
+    Int_t NoMuMcTracks = fMuDst->numberOfMcTracks();
+         for (Int_t k = 0; k < NoMuMcTracks; k++) {
+
+	      StMuMcTrack *mcTrack = fMuDst->MCtrack(k);
+
+        bmcparticleid = mcTrack->GePid();
+	if(bmcparticleid==40002){
+	bmcparticleid = 3334;
+	}
+        if(bmcparticleid==99999){
+        bmcparticleid = 3312;
+        }
+	if(bmcparticleid==10018){
+        bmcparticleid = 3122;
+	}	
+
+	 bmcrawpx = mcTrack->Pxyz().x();
+         bmcrawpy = mcTrack->Pxyz().y();
+         bmcrawpz = mcTrack->Pxyz().z();		
+	bmcrefmult = brefmult;
+
+	if(abs(bmcparticleid)==3334){
+	omega_mc_tree->Fill();
+	}
+        if(abs(bmcparticleid)==3312){
+        cascade_mc_tree->Fill();
+        }
+	if(abs(bmcparticleid)==3122){
+	lambda_mc_tree->Fill();
+	}
+
+	}//mctrack loop
+
+	}
+
+
 
     if(fStoreTmvaNTuples)
     {
@@ -1197,6 +1463,7 @@ bmcpz=-999;
             bool sideband;
 	if(iNTuple==0){ //lambda
             sideband = (side_mass>1.085 && side_mass<1.10) || (side_mass>1.125 && side_mass<1.14);//for consistency with long code
+sideband = true;//for testing
 	}
         if(iNTuple==1){ //omega
 
@@ -1221,6 +1488,11 @@ bmcpz=-999;
 //TOBEREVERTED
   sideband = true;//for testing
 //            cout<<"fProcessSignal:"<<fProcessSignal<<" isMCParticle:"<<isMCParticle<<endl;
+	}
+	if(iNTuple==2){
+	    sideband = (side_mass>1.25 && side_mass<1.30) || (side_mass>1.35 && side_mass<1.40);//for consistency with long code
+            //TOBEREVERTED
+            sideband = true;
 	}
             if( fProcessSignal || (!fProcessSignal && sideband) )
                fCutsNTuple[iNTuple]->Fill(fTMVAParticleParameters[iNTuple].data());
@@ -1327,30 +1599,43 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
 
     fTMVAParticleParameters[iReader][nDaughterParticleCut + 5] = particle.GetMass();
 
-    fTMVAParticleParameters[iReader][nDaughterParticleCut + 6] = sqrt(particle.GetPx()*particle.GetPx()+particle.GetPy()*particle.GetPy());
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 6] = particle.GetPx();
 
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 7] = particle.GetPy();
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 8] = particle.GetPz();
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 9] = bVx;
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 10] = bVy;
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 11] = bVz;
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 12] = bVxerr;
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 13] = bVyerr;
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 14] = bVzerr;
 
 	if(iReader>0){//cascade or omega
   int order[4] = {0, 1, 2, 3};
   const int daughterParticleIndex = particle.DaughterIds()[order[1]];
   KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
 
-  fTMVAParticleParameters[iReader][nDaughterParticleCut + 7]   = daughter.Chi2()/daughter.NDF();
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 15]   = daughter.Chi2()/daughter.NDF();
 
   KFParticleSIMD ttempSIMDParticle(daughter);
   float_v tl,tdl;
   KFParticleSIMD tpv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
   ttempSIMDParticle.GetDistanceToVertexLine(tpv, tl, tdl);
 
-  fTMVAParticleParameters[iReader][nDaughterParticleCut + 8] = tl[0]/tdl[0];
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 16] = tl[0]/tdl[0];
 
-  fTMVAParticleParameters[iReader][nDaughterParticleCut + 9] = tl[0];  
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 17] = tl[0];  
 
   ttempSIMDParticle.SetProductionVertex(tpv); 
-  fTMVAParticleParameters[iReader][nDaughterParticleCut + 10] = double(ttempSIMDParticle.Chi2()[0])/double(ttempSIMDParticle.NDF()[0]);
-		
-
-
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 18] = double(ttempSIMDParticle.Chi2()[0])/double(ttempSIMDParticle.NDF()[0]);
+	
 	}
 }
 
