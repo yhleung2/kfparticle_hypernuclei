@@ -18,6 +18,9 @@ class StDcaGeometry;
 class KFPTrack;
 class TH1F;
 class TH2F;
+class TH1D;
+class TH2D;
+class TFile;
 
 class StKFParticleInterface: public TObject
 {
@@ -85,6 +88,13 @@ class StKFParticleInterface: public TObject
   const float GetTofNSigmaKaon(const int trackId)    const { return fTrackPidTof[1][trackId]; }
   const float GetTofNSigmaProton(const int trackId)  const { return fTrackPidTof[2][trackId]; }
 
+  const float GetdEdX(const int trackId)  const { return fTrackdEdX[trackId]; }
+  const float GetNHits(const int trackId)  const { return fNHits[trackId]; }
+  const float GetNHitsdedx(const int trackId)  const { return fNHitsdedx[trackId]; }
+  const float Getdca(const int trackId)  const { return fdca[trackId]; }
+  const float Getzdeuteron(const int trackId)  const { return fTrackzdeuteron[trackId]; }
+  const float Getm2(const int trackId)  const { return fTrackm2[trackId]; }
+
   //PID cuts 
   void SetStrictTofPidMode() { fStrictTofPID = true;  }
   void SetSoftTofPidMode()   { fStrictTofPID = false; }
@@ -97,7 +107,15 @@ class StKFParticleInterface: public TObject
   //Event cuts
   void CleanLowPVTrackEvents() { fCleanLowPVTrackEvents = true; }
   void UseHFTTracksOnly()      { fUseHFTTracksOnly = true; }
+    
+  //Rotation
+  void SetRotation() { fRotation = true; }
+  void SetRotationAngle(float angle) { fRotationAngle = angle; }
+  void SetRotationPID(int pid)       { fRotationPID = pid; }
   
+  //smearing
+  void SetVtxError() { fVtxErr = true; }
+
   KFParticleFinder* GetKFParticleFinder();
   //KF Particle Finder cuts
   void SetMaxDistanceBetweenParticlesCut(float cut);
@@ -121,6 +139,9 @@ class StKFParticleInterface: public TObject
   void SetLdLCutCharm2D(float cut);
   void SetChi2TopoCutCharm2D(float cut);
   void SetChi2CutCharm2D(float cut);
+//b
+  void SetMixedEventAnalysis();
+//endb
   static StKFParticleInterface *instance() {return fgStKFParticleInterface;}
  private:
   
@@ -158,7 +179,20 @@ class StKFParticleInterface: public TObject
   //PID information with respect to the trackID
   std::vector<float> fTrackPidTof[3];
   std::vector<float> fTrackPidTpc[3];
-  
+  std::vector<float> fTrackdEdX;
+  std::vector<int> fNHits; 
+  std::vector<int> fNHitsdedx; 
+  std::vector<float> fdca; 
+  std::vector<float> fTrackzdeuteron;
+  std::vector<float> fTrackm2;
+  //Rotation
+  bool fRotation;
+  float fRotationAngle;
+  int fRotationPID;
+
+  //Set Vertex Error 
+  bool fVtxErr;
+
   //PID cuts
   bool fStrictTofPID;
   bool fCleanKaonsWitTof;
@@ -172,6 +206,17 @@ class StKFParticleInterface: public TObject
   //Event cuts
   bool fCleanLowPVTrackEvents;
   bool fUseHFTTracksOnly;
+  //smearing
+  TFile* f0;
+  TH2D *h_vxerr_countrefmult;
+  TH2D *h_vyerr_countrefmult;
+  TH2D *h_vzerr_countrefmult;
+  TH1D *h_vxerr_countrefmult_px;
+  TH1D *h_vxerr_countrefmult_py;
+  TH1D *h_vxerr_countrefmult_pz;
+  double vxerr ;
+  double vyerr ;
+  double vzerr ;
   ClassDef(StKFParticleInterface,1)
 };
 
