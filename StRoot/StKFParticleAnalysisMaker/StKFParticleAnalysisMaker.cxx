@@ -89,6 +89,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
   fDaughterNames[7].push_back("Pi1D");  fDaughterNames[7].push_back("KD");     fDaughterNames[7].push_back("Pi2D"); fDaughterNames[7].push_back("Pi");  //B0 -> D-pi+
 //  fDaughterNames[8].push_back("Proton");fDaughterNames[8].push_back("Pi");
 */
+  fDaughterNames[0].push_back("Proton");fDaughterNames[0].push_back("Pi");
 
   for(int iDecay=0; iDecay<fNNTuples; iDecay++)
   {
@@ -105,7 +106,7 @@ StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker
       }
     }
     if(iDecay==0) 
-      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:Chi2Topo:refMult:mass";	
+      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:L:Chi2Topo:refMult:mass:pt";	
     else if(iDecay>0 && iDecay<6 )
       fNtupleCutNames[iDecay] += "Chi2NDF:LdL:Chi2Topo:refMult";
     else if(iDecay>=6 && iDecay<8)
@@ -237,6 +238,21 @@ Int_t StKFParticleAnalysisMaker::Init()
 //  lambda_tree->Branch("bVzerr",&bVzerr,"bVzerr/F");
 //  lambda_tree->Branch("bVrerr",&bVrerr,"bVrerr/F");
 
+  lambda_tree->Branch("brunId",&brunid,"brunid/I");
+  lambda_tree->Branch("bVz",&bVz,"bVz/F");
+  lambda_tree->Branch("brefmult",&brefmult,"brefmult/I");
+  lambda_tree->Branch("btofmult",&btofmult,"btofmult/I");
+
+lambda_tree->Branch("ld_chi2topo",&ld_chi2topo,"ld_chi2topo/F");
+lambda_tree->Branch("ld_chi2ndf",&ld_chi2ndf,"ld_chi2ndf/F");
+lambda_tree->Branch("ld_ldl",&ld_ldl,"ld_ldl/F");
+
+lambda_tree->Branch("ld_l",&ld_l,"ld_l/F");
+lambda_tree->Branch("ld_dl",&ld_dl,"ld_dl/F");
+
+lambda_tree->Branch("chi2primary_proton",&chi2primary_proton,"chi2primary_proton/F");
+lambda_tree->Branch("chi2primary_pi",&chi2primary_pi,"chi2primary_pi/F");
+
   lambda_tree->Branch("bparticleid",&bparticleid,"bparticleid/I");
   lambda_tree->Branch("bparticlemass",&bparticlemass,"bparticlemass/F");
 //  lambda_tree->Branch("bx",&bx,"bx/F");
@@ -326,8 +342,9 @@ Int_t StKFParticleAnalysisMaker::Init()
   omega_tree->Branch("bprotonpz",&bprotonpz,"bprotonpz/F");
   omega_tree->Branch("bprotonmass",&bprotonmass,"bprotonmass/F");
 
-  hvtx      = new TH1F("hvtx",    "Vz;Vz(cm);Counts",500,-200,200);
-  hvtxgood  = new TH1F("hvtxgood","Vz;Vz(cm);Counts",500,-200,200);
+    hvtx      = new TH1F("hvtx",    "Vz;Vz(cm);Counts",500,-200,200);
+    hvtxgood  = new TH1F("hvtxgood","Vz;Vz(cm);Counts",500,-200,200);
+    hrefmult  = new TH1F("hrefmult", "refmult; hrefmult; N_{evt}", 600,0,600);
 
   return kStOK;
 }
@@ -408,7 +425,10 @@ Int_t StKFParticleAnalysisMaker::Make()
   }
 
   //cout<<"WHERE?"<<endl; 
- 
+// bool _fill_lambda_tree;
+  //_fill_lambda_tree = false;
+_fill_lambda_tree = true;
+//
   //find max global track index
   int maxGBTrackIndex = -1;
   if(fIsPicoAnalysis)
@@ -518,12 +538,51 @@ if(bWriteTree){
 }
 
 	hvtx->Fill(bVz);
-if(isGoodEvent){
-        hvtxgood->Fill(bVz);
+//if(isGoodEvent){
+//        hvtxgood->Fill(bVz);
 //cout<<"bVz:"<<bVz<<endl;
-}
+//}
 }//if writetree
 
+
+//cut on refmult and tofmult, trigger, to cut on good event. this cut is only for real analysis!! 
+//when fStoreTmvaNTuples is true, there is no need to cut on these variables
+int crefmult;
+int ctofmult;
+   if(fIsPicoAnalysis)
+ {
+   //brunid   = fPicoDst->event()->runId();
+   crefmult = fPicoDst->event()->refMult();
+   ctofmult = fPicoDst->event()->btofTrayMultiplicity();
+ }
+ else
+ {
+   //brunid   = fMuDst->event()->runId();
+   crefmult = fMuDst->event()->refMult();
+   ctofmult = fMuDst->event()->btofTrayMultiplicity();
+ }
+  
+ if(crefmult>(0.42*ctofmult+16) || crefmult<(0.02*ctofmult-5)) isGoodEvent = false;
+
+  int trigger=0;
+
+if(fIsPicoAnalysis){
+  if(fPicoDst->event()->isTrigger(610001)) trigger += 1;
+  if(fPicoDst->event()->isTrigger(610011)) trigger += 10;
+  if(fPicoDst->event()->isTrigger(610021)) trigger += 100;
+  if(fPicoDst->event()->isTrigger(610031)) trigger += 1000;
+  if(fPicoDst->event()->isTrigger(610041)) trigger += 10000;
+  if(fPicoDst->event()->isTrigger(610051)) trigger += 100000;
+}
+else{
+trigger+=1; //auto pass trigger because we co not use mudst for real analysis anyway
+}
+  //cout<<"trigger:"<<trigger<<endl;
+   if(trigger==0) isGoodEvent = false;
+if(isGoodEvent){
+        hvtxgood->Fill(bVz);
+        hrefmult->Fill(crefmult);
+}
  
   if(isGoodEvent)
 //  if(1)
@@ -816,6 +875,20 @@ if(fabs(bVz)<70 && bVr<2){
 
         bparticleid   = particle.GetPDG();
         bparticlemass = particle.GetMass();
+
+	if(fIsPicoAnalysis)
+      {
+        brunid   = fPicoDst->event()->runId();
+        brefmult = fPicoDst->event()->refMult();
+        btofmult = fPicoDst->event()->btofTrayMultiplicity();
+      }
+      else
+      {
+        brunid   = fMuDst->event()->runId();
+        brefmult = fMuDst->event()->refMult();
+        btofmult = fMuDst->event()->btofTrayMultiplicity();
+      }
+
         bx = particle.GetX();
         by = particle.GetY();
         bz = particle.GetZ();
@@ -943,18 +1016,44 @@ if(fabs(bVz)<70 && bVr<2){
 
        }//GetListOfDaughterTracks
 */
-bool _fill_lambda_tree;
+//bool _fill_lambda_tree;
 //_fill_lambda_tree = false;
-_fill_lambda_tree = true;
-if(_fill_lambda_tree){
+//_fill_lambda_tree = true;
+if(_fill_lambda_tree && isGoodEvent){
 if(fabs(particle.GetPDG())==3122){
+//      GetParticleParameters(0, particle);
+
+  KFParticleSIMD tempSIMDParticle(particle);
+  float_v l,dl;
+  KFParticleSIMD pv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+  tempSIMDParticle.GetDistanceToVertexLine(pv, l, dl);
+  ld_ldl = l[0]/dl[0];
+  ld_l = l[0];
+  ld_dl = dl[0];
+
+  tempSIMDParticle.SetProductionVertex(pv);
+  ld_chi2topo = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
+  ld_chi2ndf = particle.Chi2()/particle.NDF();
+
+for(int iDaughter=0; iDaughter<particle.NDaughters(); iDaughter++)
+{
+      int order[4] = {0, 1, 2, 3};
+  const int daughterParticleIndex = particle.DaughterIds()[order[iDaughter]];
+  KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterParticleIndex];
+  //          GetDaughterParameters(iReader, iDaughterTrack, iDaughterParticle, daughter);
+  if(iDaughter==0){chi2primary_proton = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());}
+  if(iDaughter==1){chi2primary_pi = daughter.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());}
+
+            }
+  
+
       lambda_tree->Fill();
 }
 }
-if(fabs(particle.GetPDG())==3312){
+if(fabs(particle.GetPDG())==3312 && isGoodEvent){
       cascade_tree->Fill();
 }
-if(fabs(particle.GetPDG())==3334){
+if(fabs(particle.GetPDG())==3334 && isGoodEvent){
       omega_tree->Fill();
 }
 
@@ -980,7 +1079,11 @@ if(fabs(particle.GetPDG())==3334){
           if( particle.GetPDG() == fNTuplePDG[iNTuple] )
           {
             GetParticleParameters(iNTuple, particle);
-            if( fProcessSignal || (!fProcessSignal && fTMVAParticleParameters[iReader][4] ))
+            double side_mass = particle.GetMass();
+            //bool sideband = (side_mass>1.06 && side_mass<1.10) || (side_mass>1.13 && side_mass<1.17);
+            bool sideband = (side_mass>1.085 && side_mass<1.10) || (side_mass>1.125 && side_mass<1.14);//for consistency with long code
+//             bool sideband = true;            
+            if( fProcessSignal || (!fProcessSignal && sideband) )
                fCutsNTuple[iNTuple]->Fill(fTMVAParticleParameters[iNTuple].data());
           }
         }
@@ -1062,22 +1165,30 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
   nDaughterParticleCut += fDaughterNames[iReader].size()*fNTrackTMVACuts;
   
   fTMVAParticleParameters[iReader][nDaughterParticleCut]   = particle.Chi2()/particle.NDF();  
+  //if(_fill_lambda_tree){ld_chi2ndf = particle.Chi2()/particle.NDF();}
   
   KFParticleSIMD tempSIMDParticle(particle);
   float_v l,dl;
   KFParticleSIMD pv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
   tempSIMDParticle.GetDistanceToVertexLine(pv, l, dl);
   fTMVAParticleParameters[iReader][nDaughterParticleCut + 1] = l[0]/dl[0];
+
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 2] = l[0];
+  //b
+  //if(_fill_lambda_tree){ld_ldl = l[0]/dl[0];}
   
   tempSIMDParticle.SetProductionVertex(pv);
-  fTMVAParticleParameters[iReader][nDaughterParticleCut + 2] = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
+  fTMVAParticleParameters[iReader][nDaughterParticleCut + 3] = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
+  //if(_fill_lambda_tree){ld_chi2topo = double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);}
 
   if(fIsPicoAnalysis)
-    fTMVAParticleParameters[iReader][nDaughterParticleCut + 3] = fPicoDst->event()->refMult();
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 4] = fPicoDst->event()->refMult();
   else
-    fTMVAParticleParameters[iReader][nDaughterParticleCut + 3] = fMuDst->event()->refMult();
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 4] = fMuDst->event()->refMult();
 
-    fTMVAParticleParameters[iReader][nDaughterParticleCut + 4] = particle.GetMass();
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 5] = particle.GetMass();
+
+    fTMVAParticleParameters[iReader][nDaughterParticleCut + 6] = sqrt(particle.GetPx()*particle.GetPx()+particle.GetPy()*particle.GetPy());
 }
 
 Int_t StKFParticleAnalysisMaker::Finish() 
